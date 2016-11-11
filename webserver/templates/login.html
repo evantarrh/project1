@@ -1,23 +1,15 @@
-<html>
-  <style>
-    body{ 
-      font-size: 15pt;
-      font-family: arial;
-    }
-  </style>
+{% extends "base.html" %}
 
+{% block title %}microblog | login{% endblock %}
 
-<body>
-{% if error %}
-	<p>Your username or password is incorrect.</p>
-{% endif %}
+{% block body %}
+  {% if error %}
+	 <p>Your username or password is incorrect.</p>
+  {% endif %}
 
 	<form method="POST" action="/login">
 		<input type='text' name='username' id='username' placeholder='username'></input>
-        <input type='password' name='pw' id='pw' placeholder='password'></input>
-        <input type='submit' name='submit'></input>
+    <input type='password' name='pw' id='pw' placeholder='password'></input>
+    <input type='submit' name='submit'></input>
 	</form>
-</body>
-
-
-</html>
+{% endblock %}

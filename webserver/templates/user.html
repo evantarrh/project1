@@ -1,22 +1,11 @@
-<html>
-  <style>
-    body{ 
-      font-size: 15pt;
-      font-family: arial;
-    }
-  </style>
+{% extends "base.html" %}
 
+{% block title %}microblog{% endblock %}
 
-<body>
-  <h1>Some famous Computer Scientists</h1>
-  <div>{{data}}</div>
-
+{% block body %}
   <div>
     {% for post in posts %}
-    	<p>{{post}}</p>
+      <p>{{post}}</p>
     {% endfor %}
   </div>
-
-</body>
-
-</html>
+{% endblock %}

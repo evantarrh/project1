@@ -1,25 +1,13 @@
 #!/usr/bin/env python2.7
 
-"""
-Columbia W4111 Intro to databases
-Example webserver
-
-To run locally
-
-    python server.py
-
-Go to http://localhost:8111 in your browser
-
-
-A debugger such as "pdb" may be helpful for debugging.
-Read about it online.
-"""
-
 import os
 import config
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
-from flask import Flask, request, render_template, g, redirect, Response, session
+from flask import (
+  Flask, request, render_template, g,
+  redirect, Response, session, abort
+)
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -49,18 +37,14 @@ def teardown_request(exception):
 
 @app.route('/')
 def index():
-  current_user = None
+  current_user = session.get('username')
 
-  if 'username' in session:
-    current_user = session['username']
-
-  cursor = g.conn.execute("SELECT username FROM Account")
-  names = []
-  for result in cursor:
-    names.append(result[0])  # can also be accessed using result[0]
+  cursor = g.conn.execute("""SELECT content FROM Posted
+                          ORDER BY time_created DESC LIMIT 10""")
+  posts = [result[0] for result in cursor]
   cursor.close()
 
-  context = dict(data=names, current_user=current_user)
+  context = dict(posts=posts, current_user=current_user)
 
   return render_template("index.html", **context)
 
@@ -139,19 +123,8 @@ if __name__ == "__main__":
   @click.option('--threaded', is_flag=True)
   @click.argument('HOST', default='0.0.0.0')
   @click.argument('PORT', default=8111, type=int)
+
   def run(debug, threaded, host, port):
-    """
-    This function handles command line parameters.
-    Run the server using
-
-        python server.py
-
-    Show the help text using
-
-        python server.py --help
-
-    """
-
     HOST, PORT = host, port
     print "running on %s:%d" % (HOST, PORT)
     app.secret_key = config.SESSION_KEY
