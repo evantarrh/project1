@@ -165,31 +165,63 @@ def signup():
 
 @app.route('/<username>', methods=['GET'])
 def view_profile(username):
-  posts, uids, followers, channels = [], [], [], []
+  current_user = session.get('username')
 
-  uid_q = """SELECT uid FROM Account WHERE username = %s"""
+  # find the user associated with the username
+  uid_q = """SELECT * FROM Account WHERE username = %s"""
   cursor = g.conn.execute(uid_q, (username,))
+  user = [result for result in cursor]
+  print user
 
-  for result in cursor:
-    uids.append(result[0])
-
-  if len(uids) != 1:
+  if len(user) != 1:
     abort(404)
 
-  uid = uids[0] # lol
+  user = {'uid': user[0][0],
+    'username': user[0][2],
+    'bio': user[0][4]
+  }
 
-  posts_q = """SELECT * FROM Posted
-               WHERE Posted.uid = %s
-               ORDER BY Posted.time_created DESC
+  # find the user's posts
+  posts_q = """SELECT content FROM Posted
+               WHERE uid = %s
+               ORDER BY time_created DESC
                LIMIT 20"""
+  cursor = g.conn.execute(posts_q, (user['uid'],))
+  posts = [result[0] for result in cursor]
 
-  cursor = g.conn.execute(posts_q, (uid,))
+  # find everyone the user is following
+  following_q = """SELECT Account.username FROM Account, Followed
+               WHERE Account.uid = Followed.subject_id
+               AND Followed.follower_id = %s
+               LIMIT 20"""
+  cursor = g.conn.execute(following_q, (user['uid'],))
+  following = [result[0] for result in cursor]
 
-  for result in cursor:
-    posts.append(result[-1])
-  cursor.close()
+  # find all followers
+  follower_q = """SELECT Account.username FROM Account, Followed
+               WHERE Account.uid = Followed.follower_id
+               AND Followed.subject_id = %s
+               LIMIT 20"""
+  cursor = g.conn.execute(follower_q, (user['uid'],))
+  followers = [result[0] for result in cursor]
 
-  return render_template("user.html", posts=posts)
+  # find all channels the user belongs to
+  channel_q = """SELECT Channel.name FROM Channel, Membership
+               WHERE Membership.gid = Channel.gid
+               AND Membership.uid = %s
+               LIMIT 20"""
+  cursor = g.conn.execute(channel_q, (user['uid'],))
+  channels = [result[0] for result in cursor]
+
+  context = {'current_user': current_user,
+             'user': user,
+             'posts': posts,
+             'followers': followers,
+             'following': following,
+             'channels': channels
+            }
+
+  return render_template("user.html", **context)
 
 @app.route('/logout')
 def logout():

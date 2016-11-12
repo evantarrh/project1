@@ -3,9 +3,39 @@
 {% block title %}microblog{% endblock %}
 
 {% block body %}
+	<h1>{{user.username}}</h1>
+	<h3>{{user.bio}}</h3>
+
+
   <div>
+	<h2>posts</h2>
+
     {% for post in posts %}
       <p>{{post}}</p>
+    {% endfor %}
+  </div>
+
+  <div>
+	<h2>channels</h2>
+	
+    {% for channel in channels %}
+      <p>{{channel}}</p>
+    {% endfor %}
+  </div>
+
+  <div>
+	<h2>followers</h2>
+	
+    {% for follower in followers %}
+      <p>{{follower}}</p>
+    {% endfor %}
+  </div>
+
+  <div>
+	<h2>following</h2>
+	
+    {% for user in following %}
+      <p>{{user}}</p>
     {% endfor %}
   </div>
 {% endblock %}
