@@ -1,0 +1,57 @@
+@import 'colors';
+
+$sans: 'Open Sans', sans-serif;
+
+h1, h2, h3, h4, h5, h6 {
+	margin: 0;
+	padding: 0;
+}
+
+p {
+	font-family: $sans;
+}
+
+.title {
+	font-family: $sans;
+	font-size: 3rem;
+	font-style: italic;
+	font-weight: 800;
+	padding-top: 3rem;
+	padding-bottom: 0.5rem;
+
+	a {
+		color: $black;
+		position: relative;
+		text-decoration: none;
+		transition: 0.3s ease all;
+
+		&::after {
+			background-color: $transparent;
+			border-radius: 10px;
+			content: "";
+			left: 45%;
+			height: 10px;
+			position: absolute;
+			transition: 0.3s ease all;
+			top: calc(100% - 5px);
+			width: 10%;
+		}
+
+		&:hover {
+			color: $dark-gray;
+
+			&::after {
+				background-color: $medium-gray;
+				left: -10px;
+				width: calc(100% + 20px);
+			}
+		}
+	}
+}
+
+.subtitle {
+	color: $medium-gray;
+	font-family: $sans;
+	font-weight: 300;
+	padding-bottom: 2rem;
+}

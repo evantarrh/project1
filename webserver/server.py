@@ -3,6 +3,7 @@
 import os
 import bcrypt
 import config
+from datetime import datetime
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import (
@@ -181,12 +182,25 @@ def view_profile(username):
   }
 
   # find the user's posts
-  posts_q = """SELECT content FROM Posted
+  posts_q = """SELECT * FROM Posted
                WHERE uid = %s
                ORDER BY time_created DESC
                LIMIT 20"""
   cursor = g.conn.execute(posts_q, (user['uid'],))
-  posts = [result[0] for result in cursor]
+  posts = [{
+            'pid': result[0],
+            'replyto': result[1],
+            'date': datetime.strftime(result[3], "%b %d"),
+            'content': result[4]
+          } for result in cursor]
+
+  for post in posts:
+    likes_q = """SELECT Count(*) FROM Liked
+                 WHERE post_id = %s"""
+    cursor = g.conn.execute(likes_q, (post['pid'],))
+    likes = [result[0] for result in cursor]
+    post['likes'] = likes[0]
+
 
   # find everyone the user is following
   following_q = """SELECT Account.username FROM Account, Followed
@@ -211,6 +225,8 @@ def view_profile(username):
                LIMIT 20"""
   cursor = g.conn.execute(channel_q, (user['uid'],))
   channels = [result[0] for result in cursor]
+
+  print posts[0]
 
   context = {'current_user': current_user,
              'user': user,
