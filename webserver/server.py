@@ -174,7 +174,7 @@ def view_profile(username):
     uids.append(result[0])
 
   if len(uids) != 1:
-    abort(500)
+    abort(404)
 
   uid = uids[0] # lol
 

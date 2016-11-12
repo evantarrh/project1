@@ -3,3 +3,4 @@ webserver/static/.sass-cache
 webserver/static/nohup.out
 *.scssc
 *.css.map
+*.pyc
