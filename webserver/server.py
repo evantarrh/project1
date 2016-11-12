@@ -109,10 +109,9 @@ def login():
   if len(results) == 0:
     return render_template("login.html", error=True)
 
-  pw_in_db = results[0]
-  hashed_pw = bcrypt.hashpw(request.form['password'], bcrypt.gensalt())
+  pw_in_db = results[0].encode('utf-8')
 
-  if not bcrypt.checkpw(hashed_pw, pw_in_db):
+  if not bcrypt.checkpw(request.form['password'].encode('utf-8'), pw_in_db):
     return render_template("login.html", error=True)
 
   session['username'] = username
