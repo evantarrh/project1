@@ -1,6 +1,7 @@
 #!/usr/bin/env python2.7
 
 import os
+import bcrypt
 import config
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
@@ -35,6 +36,15 @@ def teardown_request(exception):
   except Exception as e:
     pass
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('500.html'), 500
+
+
 @app.route('/')
 def index():
   current_user = session.get('username')
@@ -48,16 +58,6 @@ def index():
 
   return render_template("index.html", **context)
 
-# Example of adding new data to the database
-@app.route('/add', methods=['POST'])
-def add():
-  name = request.form['name']
-  print name
-  cmd = 'INSERT INTO test(name) VALUES (:name1), (:name2)'
-  g.conn.execute(text(cmd), name1 = name, name2 = name)
-  return redirect('/')
-
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
   if request.method == 'GET':
@@ -65,17 +65,59 @@ def login():
 
   username = request.form['username']
 
-  q = "SELECT password FROM Account WHERE username = '{}'".format(username)
-  cursor = g.conn.execute(q)
-  results = []
-
-  for result in cursor:
-    results.append(result[0])  # can also be accessed using result[0]
+  q = "SELECT password FROM Account WHERE username = %s"
+  cursor = g.conn.execute(q, (username,))
+  results = [result[0] for result in cursor]
   cursor.close()
 
   # If username or password is incorrect
-  if (len(results) == 0 or request.form['pw'] != results[0]):
+  if (len(results) == 0 or request.form['password'] != results[0]):
     return render_template("login.html", error=True)
+
+  session['username'] = username
+  return redirect('/')
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+  if request.method == 'GET':
+    return render_template("signup.html")
+
+  username = request.form['username']
+  email = request.form['email']
+  password = request.form['password']
+
+  if not username or not email or not password:
+    error_text = "Complete all fields before submitting"
+    return render_template("signup.html", error_text=error_text)
+
+  if len(password) < 6:
+    error_text = "Your password must be at least 6 characters long"
+    return render_template("signup.html", error_text=error_text)
+
+  # check username is unique
+  username_q = "SELECT Count(*) FROM Account WHERE username = %s"
+  cursor = g.conn.execute(username_q, (username,))
+  username_count = [result[0] for result in cursor]
+  username_count = username_count[0]
+
+  if username_count:
+    error_text = "That username is taken"
+    return render_template("signup.html", error_text=error_text)    
+
+  # figure out what uid new user should have
+  bad_q = "SELECT Max(uid) FROM Account"
+  cursor = g.conn.execute(bad_q)
+  uids = [result[0] for result in cursor]
+  max_uid = uids[0]
+
+  password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+  insert_q = """INSERT INTO
+                Account (uid, time_created, username, email, password)
+                VALUES (%s, current_timestamp, %s, %s, %s)"""
+  g.conn.execute(insert_q,
+    (max_uid + 1, username, email, password_hash)
+  )
 
   session['username'] = username
   return redirect('/')
@@ -85,7 +127,7 @@ def view_profile(username):
   posts, uids, followers, channels = [], [], [], []
 
   uid_q = """SELECT uid FROM Account WHERE username = %s"""
-  cursor = g.conn.execute(uid_q, (username))
+  cursor = g.conn.execute(uid_q, (username,))
 
   for result in cursor:
     uids.append(result[0])
@@ -100,7 +142,7 @@ def view_profile(username):
                ORDER BY Posted.time_created DESC
                LIMIT 20"""
 
-  cursor = g.conn.execute(posts_q, (uid))
+  cursor = g.conn.execute(posts_q, (uid,))
 
   for result in cursor:
     posts.append(result[-1])

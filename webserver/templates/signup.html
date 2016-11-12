@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}microblog | login{% endblock %}
+
+{% block body %}
+  {% if error_text %}
+    <p>{{ error_text }}</p>
+  {% endif %}
+
+  <form method="POST" action="/signup">
+  	<input type='text' name='email' id='email' placeholder='email'></input>
+    <input type='text' name='username' id='username' placeholder='username'></input>
+  	<input type='password' name='password' id='password' placeholder='password'></input>
+  	<input type='submit' name='submit'></input>
+  </form>
+{% endblock %}
