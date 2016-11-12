@@ -48,13 +48,48 @@ def internal_server_error(e):
 @app.route('/')
 def index():
   current_user = session.get('username')
+  posts = []
+  suggested_users = []
 
-  cursor = g.conn.execute("""SELECT content FROM Posted
-                          ORDER BY time_created DESC LIMIT 10""")
-  posts = [result[0] for result in cursor]
+  if current_user:
+    recent_posts_q = """SELECT content
+                        FROM Posted
+                        WHERE uid IN
+                          (SELECT subject_id
+                           FROM Followed
+                           WHERE follower_id = 
+                            (SELECT uid
+                             FROM Account
+                             WHERE username = %s)
+                           )
+                        ORDER BY time_created DESC LIMIT 10"""
+
+    suggested_users_q = """SELECT username
+                           FROM Account
+                           WHERE uid IN
+                            (SELECT uid
+                             FROM Posted
+                             ORDER BY time_created DESC
+                            )
+                           LIMIT 10"""
+
+    cursor = g.conn.execute(recent_posts_q, (current_user,))
+    posts = [result[0] for result in cursor]
+
+    cursor = g.conn.execute(suggested_users_q)
+    suggested_users = [result[0] for result in cursor]
+
+  else:
+    recent_posts_q = """SELECT content FROM Posted
+                        ORDER BY time_created DESC LIMIT 10"""
+    cursor = g.conn.execute(recent_posts_q)
+    posts = [result[0] for result in cursor]
+
   cursor.close()
 
-  context = dict(posts=posts, current_user=current_user)
+  context = dict(posts=posts,
+                 current_user=current_user,
+                 suggested_users=suggested_users)
 
   return render_template("index.html", **context)
 

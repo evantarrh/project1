@@ -3,9 +3,24 @@
 {% block title %}microblog{% endblock %}
 
 {% block body %}
-  <div>
-    {% for post in posts %}
-      <p>{{post}}</p>
-    {% endfor %}
-  </div>
+
+  {% if posts %}
+    <div>
+      {% for post in posts %}
+        <p>{{post}}</p>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div>
+      <p>There doesn't seem to be anything here! You should follow some people.</p>
+      <p>Here are some suggestions:</p>
+      <ul>
+        {% for user in suggested_users %}
+          <li><a href="/{{user}}">{{user}}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+  <p>current user: {{current_user}}</p>
+
 {% endblock %}
