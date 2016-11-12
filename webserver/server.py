@@ -70,8 +70,14 @@ def login():
   results = [result[0] for result in cursor]
   cursor.close()
 
-  # If username or password is incorrect
-  if (len(results) == 0 or request.form['password'] != results[0]):
+  # If username doesn't exist
+  if len(results) == 0:
+    return render_template("login.html", error=True)
+
+  pw_in_db = results[0]
+  hashed_pw = bcrypt.hashpw(request.form['password'], bcrypt.gensalt())
+
+  if not bcrypt.checkpw(hashed_pw, pw_in_db):
     return render_template("login.html", error=True)
 
   session['username'] = username
