@@ -56,10 +56,9 @@ def index():
     suggested_users = queries.get_suggested_users()
 
   else:
-    posts = get_all_recent_posts()
+    posts = queries.get_all_recent_posts()
     
   context = dict(posts=posts,
-                 current_user=current_user,
                  suggested_users=suggested_users)
 
   return render_template("index.html", **context)

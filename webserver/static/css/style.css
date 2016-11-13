@@ -2,11 +2,14 @@ html, body, div {
   margin: 0;
   padding: 0; }
 
+body {
+  position: relative; }
+
 h1, h2, h3, h4, h5, h6 {
   margin: 0;
   padding: 0; }
 
-p {
+p, span, a, div {
   font-family: "Open Sans", sans-serif; }
 
 .title {
@@ -44,10 +47,63 @@ p {
   font-weight: 300;
   padding-bottom: 2rem; }
 
+.inline-link {
+  color: #99a;
+  text-decoration: none;
+  transition: 0.3s ease all; }
+  .inline-link::after {
+    background-color: rgba(255, 255, 255, 0);
+    bottom: -4px;
+    content: "";
+    left: 45%;
+    height: 1px;
+    position: absolute;
+    transition: 0.3s ease all;
+    width: 10%; }
+  .inline-link:hover {
+    color: #556; }
+    .inline-link:hover::after {
+      background-color: #99a;
+      left: -5px;
+      width: calc(100% + 10px); }
+
 .hero {
   max-width: 80%;
   margin: 0 auto;
   text-align: center; }
+
+.upper-left {
+  left: 4rem;
+  position: absolute;
+  top: 4.5rem;
+  font-size: 1rem;
+  font-weight: 300; }
+
+.upper-right {
+  font-weight: 300;
+  font-size: 1rem;
+  position: absolute;
+  right: 4rem;
+  top: 4.5rem; }
+  .upper-right .account-stuff {
+    color: #99a; }
+  .upper-right .link-wrapper {
+    position: relative; }
+  .upper-right .login {
+    margin-right: 0.5rem; }
+  .upper-right .logged-in {
+    margin-right: 1rem; }
+  .upper-right .signup {
+    background-color: #27d;
+    border-bottom: 2px solid #438be2;
+    border-radius: 10px;
+    color: #fff;
+    margin-left: 0.5rem;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    transition: 0.2s ease all; }
+    .upper-right .signup:hover {
+      background-color: #438be2; }
 
 .content {
   margin: 0 auto;
@@ -70,8 +126,8 @@ p {
     line-height: 1.6;
     margin: 0;
     padding: 0;
-    padding-bottom: 2rem; }
-  .post .date, .post .likes {
+    padding-bottom: 2.5rem; }
+  .post .date, .post .user, .post .likes {
     bottom: 1.25rem;
     color: #99a;
     font-size: 0.9375rem;
@@ -80,11 +136,22 @@ p {
     position: absolute; }
   .post .date {
     left: 2rem; }
+  .post .user {
+    left: 50%;
+    transform: translateX(-50%); }
   .post .likes {
     right: 3.5rem; }
     .post .likes .heart {
       fill: #27d;
       position: absolute;
       right: -2rem; }
+
+.footer {
+  font-weight: 300;
+  padding: 2rem 0;
+  text-align: center; }
+  .footer .link-wrapper {
+    position: relative;
+    margin: 0 0.25rem; }
 
 /*# sourceMappingURL=style.css.map */

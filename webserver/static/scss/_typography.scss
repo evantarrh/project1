@@ -7,7 +7,7 @@ h1, h2, h3, h4, h5, h6 {
 	padding: 0;
 }
 
-p {
+p, span, a, div {
 	font-family: $sans;
 }
 
@@ -55,3 +55,31 @@ p {
 	font-weight: 300;
 	padding-bottom: 2rem;
 }
+
+.inline-link {
+	color: $medium-gray;
+	text-decoration: none;
+	transition: 0.3s ease all;
+
+	&::after {
+		background-color: $transparent;
+		bottom: -4px;
+		content: "";
+		left: 45%;
+		height: 1px;
+		position: absolute;
+		transition: 0.3s ease all;
+		width: 10%;
+	}
+
+	&:hover {
+		color: $dark-gray;
+
+		&::after {
+			background-color: $medium-gray;
+			left: -5px;
+			width: calc(100% + 10px);
+		}
+	}
+}
+

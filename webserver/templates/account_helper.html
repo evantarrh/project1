@@ -1,0 +1,14 @@
+{% if 'username' in session %}
+	<div class="upper-right">
+		<span class="link-wrapper logged-in"><a href="/{{session['username']}}" class="inline-link">&commat;{{session['username']}}</a></span>
+		<span class="link-wrapper logged-in"><a href="/new" class="inline-link">new post</a></span>
+		<span class="link-wrapper"><a href="/logout" class="inline-link">log out</a></span>
+	</div>
+{% else %}
+	<div class="upper-right">
+		<span class="account-stuff">
+			<span class="link-wrapper login"><a href="/login" class="inline-link">log in</a></span> or
+			<a href="/signup" class="signup">sign up</a>
+		</span>
+	</div>
+{% endif %}
