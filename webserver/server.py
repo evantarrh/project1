@@ -2,7 +2,7 @@
 
 import os
 import bcrypt
-import config
+import config, queries
 from datetime import datetime
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
@@ -49,45 +49,15 @@ def internal_server_error(e):
 @app.route('/')
 def index():
   current_user = session.get('username')
-  posts = []
   suggested_users = []
 
   if current_user:
-    recent_posts_q = """SELECT content
-                        FROM Posted
-                        WHERE uid IN
-                          (SELECT subject_id
-                           FROM Followed
-                           WHERE follower_id = 
-                            (SELECT uid
-                             FROM Account
-                             WHERE username = %s)
-                           )
-                        ORDER BY time_created DESC LIMIT 10"""
-
-    suggested_users_q = """SELECT username
-                           FROM Account
-                           WHERE uid IN
-                            (SELECT uid
-                             FROM Posted
-                             ORDER BY time_created DESC
-                            )
-                           LIMIT 10"""
-
-    cursor = g.conn.execute(recent_posts_q, (current_user,))
-    posts = [result[0] for result in cursor]
-
-    cursor = g.conn.execute(suggested_users_q)
-    suggested_users = [result[0] for result in cursor]
+    posts = queries.get_homepage_posts_for_user(current_user)
+    suggested_users = queries.get_suggested_users()
 
   else:
-    recent_posts_q = """SELECT content FROM Posted
-                        ORDER BY time_created DESC LIMIT 10"""
-    cursor = g.conn.execute(recent_posts_q)
-    posts = [result[0] for result in cursor]
-
-  cursor.close()
-
+    posts = get_all_recent_posts()
+    
   context = dict(posts=posts,
                  current_user=current_user,
                  suggested_users=suggested_users)
@@ -99,20 +69,19 @@ def login():
   if request.method == 'GET':
     return render_template("login.html")
 
-  username = request.form['username']
+  username = request.form['username'].lower()
+  pw_in_db = ""
 
-  q = "SELECT password FROM Account WHERE username = %s"
-  cursor = g.conn.execute(q, (username,))
-  results = [result[0] for result in cursor]
-  cursor.close()
-
-  # If username doesn't exist
-  if len(results) == 0:
+  try:
+    pw_in_db = queries.get_password_for_user(username)
+  except:
     return render_template("login.html", error=True)
 
-  pw_in_db = results[0].encode('utf-8')
+  # we have to encode these for bcrypt
+  pw_in_db = pw_in_db.encode('utf-8')
+  pw_attempt = request.form['password'].encode('utf-8')
 
-  if not bcrypt.checkpw(request.form['password'].encode('utf-8'), pw_in_db):
+  if not bcrypt.checkpw(pw_attempt, pw_in_db):
     return render_template("login.html", error=True)
 
   session['username'] = username
@@ -123,7 +92,7 @@ def signup():
   if request.method == 'GET':
     return render_template("signup.html")
 
-  username = request.form['username']
+  username = request.form['username'].lower()
   email = request.form['email']
   password = request.form['password']
 
@@ -135,105 +104,32 @@ def signup():
     error_text = "Your password must be at least 6 characters long"
     return render_template("signup.html", error_text=error_text)
 
-  # check username is unique
-  username_q = "SELECT Count(*) FROM Account WHERE username = %s"
-  cursor = g.conn.execute(username_q, (username,))
-  username_count = [result[0] for result in cursor]
-  username_count = username_count[0]
-
-  if username_count:
+  if queries.username_exists_in_db(username):
     error_text = "That username is taken"
     return render_template("signup.html", error_text=error_text)    
 
-  # figure out what uid new user should have
-  bad_q = "SELECT Max(uid) FROM Account"
-  cursor = g.conn.execute(bad_q)
-  uids = [result[0] for result in cursor]
-  max_uid = uids[0]
-
   password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-  insert_q = """INSERT INTO
-                Account (uid, time_created, username, email, password)
-                VALUES (%s, current_timestamp, %s, %s, %s)"""
-  g.conn.execute(insert_q,
-    (max_uid + 1, username, email, password_hash)
-  )
+  queries.insert_user(username, email, password_hash)
 
   session['username'] = username
+
   return redirect('/')
 
 @app.route('/<username>', methods=['GET'])
 def view_profile(username):
-  current_user = session.get('username')
-
-  # find the user associated with the username
-  uid_q = """SELECT * FROM Account WHERE username = %s"""
-  cursor = g.conn.execute(uid_q, (username,))
-  user = [result for result in cursor]
-  print user
-
-  if len(user) != 1:
+  user = None
+  try:
+    user = queries.find_user_from_username(username)
+  except:
     abort(404)
 
-  user = {'uid': user[0][0],
-    'username': user[0][2],
-    'bio': user[0][4]
-  }
-
-  # find the user's posts
-  posts_q = """SELECT * FROM Posted
-               WHERE uid = %s
-               ORDER BY time_created DESC
-               LIMIT 20"""
-  cursor = g.conn.execute(posts_q, (user['uid'],))
-  posts = [{
-            'pid': result[0],
-            'replyto': result[1],
-            'date': datetime.strftime(result[3], "%b %d"),
-            'content': result[4]
-          } for result in cursor]
-
-  for post in posts:
-    likes_q = """SELECT Count(*) FROM Liked
-                 WHERE post_id = %s"""
-    cursor = g.conn.execute(likes_q, (post['pid'],))
-    likes = [result[0] for result in cursor]
-    post['likes'] = likes[0]
-
-
-  # find everyone the user is following
-  following_q = """SELECT Account.username FROM Account, Followed
-               WHERE Account.uid = Followed.subject_id
-               AND Followed.follower_id = %s
-               LIMIT 20"""
-  cursor = g.conn.execute(following_q, (user['uid'],))
-  following = [result[0] for result in cursor]
-
-  # find all followers
-  follower_q = """SELECT Account.username FROM Account, Followed
-               WHERE Account.uid = Followed.follower_id
-               AND Followed.subject_id = %s
-               LIMIT 20"""
-  cursor = g.conn.execute(follower_q, (user['uid'],))
-  followers = [result[0] for result in cursor]
-
-  # find all channels the user belongs to
-  channel_q = """SELECT Channel.name FROM Channel, Membership
-               WHERE Membership.gid = Channel.gid
-               AND Membership.uid = %s
-               LIMIT 20"""
-  cursor = g.conn.execute(channel_q, (user['uid'],))
-  channels = [result[0] for result in cursor]
-
-  print posts[0]
-
-  context = {'current_user': current_user,
+  context = {'current_user': session.get('username'),
              'user': user,
-             'posts': posts,
-             'followers': followers,
-             'following': following,
-             'channels': channels
+             'posts': queries.get_recent_posts_from_uid(user['uid']),
+             'following': queries.get_following_given_uid(user['uid']),
+             'followers': queries.get_followers_of_uid(user['uid']),
+             'channels': queries.get_memberships_of_uid(user['uid'])
             }
 
   return render_template("user.html", **context)
