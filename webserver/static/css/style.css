@@ -3,6 +3,7 @@ html, body, div {
   padding: 0; }
 
 body {
+  min-width: 940px;
   position: relative; }
 
 h1, h2, h3, h4, h5, h6 {
@@ -12,11 +13,18 @@ h1, h2, h3, h4, h5, h6 {
 p, span, a, div {
   font-family: "Open Sans", sans-serif; }
 
+h2 {
+  font-size: 1.0875rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin-bottom: 0.5rem; }
+
 .title {
   font-family: "Open Sans", sans-serif;
   font-size: 3rem;
   font-style: italic;
   font-weight: 800;
+  letter-spacing: -1px;
   padding-top: 3rem;
   padding-bottom: 0.5rem; }
   .title a {
@@ -70,7 +78,11 @@ p, span, a, div {
 .hero {
   max-width: 80%;
   margin: 0 auto;
+  margin-bottom: 2rem;
   text-align: center; }
+
+.link-wrapper {
+  position: relative; }
 
 .upper-left {
   left: 4rem;
@@ -87,8 +99,6 @@ p, span, a, div {
   top: 4.5rem; }
   .upper-right .account-stuff {
     color: #99a; }
-  .upper-right .link-wrapper {
-    position: relative; }
   .upper-right .login {
     margin-right: 0.5rem; }
   .upper-right .logged-in {
@@ -106,9 +116,31 @@ p, span, a, div {
       background-color: #438be2; }
 
 .content {
+  font-weight: 300;
   margin: 0 auto;
-  width: 90%;
-  max-width: 760px; }
+  min-width: 760px;
+  position: relative;
+  width: 100%; }
+  .content .content-left, .content .feed, .content .content-right {
+    display: inline-block; }
+  .content .content-left ul, .content .content-right ul {
+    margin: 0;
+    padding: 0; }
+  .content .content-left li, .content .content-right li {
+    list-style: none;
+    line-height: 2; }
+    .content .content-left li a, .content .content-right li a {
+      position: relative; }
+  .content .content-left {
+    float: left;
+    width: 20%; }
+    .content .content-left .content-inner {
+      padding-left: 4rem; }
+  .content .feed {
+    width: 60%; }
+  .content .content-right {
+    float: right;
+    width: 20%; }
 
 .post {
   border: 1px solid #ccd;
@@ -117,7 +149,8 @@ p, span, a, div {
   font-family: "Open Sans", sans-serif;
   padding: 1.5rem 2rem;
   position: relative;
-  margin: 2rem auto;
+  margin: 0 auto;
+  margin-bottom: 3rem;
   max-width: 540px; }
   .post .post-content {
     font-size: 1.0625rem;
@@ -153,5 +186,13 @@ p, span, a, div {
   .footer .link-wrapper {
     position: relative;
     margin: 0 0.25rem; }
+
+.space {
+  height: 2rem; }
+
+@media (max-width: 740px) {
+  .content-left, .content-right {
+    display: block;
+    float: none; } }
 
 /*# sourceMappingURL=style.css.map */

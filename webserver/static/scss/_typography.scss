@@ -11,11 +11,19 @@ p, span, a, div {
 	font-family: $sans;
 }
 
+h2 {
+	font-size: 1.0875rem;
+	font-weight: 800;
+	letter-spacing: -1px;
+	margin-bottom: 0.5rem;
+}
+
 .title {
 	font-family: $sans;
 	font-size: 3rem;
 	font-style: italic;
 	font-weight: 800;
+	letter-spacing: -1px;
 	padding-top: 3rem;
 	padding-bottom: 0.5rem;
 

@@ -5,7 +5,12 @@
 .hero {
 	max-width: 80%;
 	margin: 0 auto;
+	margin-bottom: 2rem;
 	text-align: center;
+}
+
+.link-wrapper {
+	position: relative;
 }
 
 .upper-left {
@@ -25,10 +30,6 @@
 
 	.account-stuff {
 	    color: $medium-gray;
-	}
-
-	.link-wrapper {
-		position: relative;
 	}
 
 	.login {
@@ -56,9 +57,50 @@
 }
 
 .content {
+	font-weight: 300;
 	margin: 0 auto;
-	width: 90%;
-	max-width: 760px;
+	min-width: 760px;
+	position: relative;
+	width: 100%;
+
+	.content-left, .feed, .content-right {
+		display: inline-block;
+	}
+
+	.content-left, .content-right {
+		ul {
+			margin: 0;
+			padding: 0;	
+		}
+
+		li {
+			list-style: none;
+			line-height: 2;
+
+			a {
+				position: relative;
+			}
+		}
+
+	}
+
+	.content-left {
+		float: left;
+		width: 20%;
+
+		.content-inner {
+			padding-left: 4rem;
+		}
+	}
+
+	.feed {
+		width: 60%;
+	}
+
+	.content-right {
+		float: right;
+		width: 20%;
+	}
 }
 
 .post {
@@ -68,7 +110,8 @@
 	font-family: $sans;
     padding: 1.5rem 2rem;
     position: relative;
-    margin: 2rem auto;
+    margin: 0 auto;
+    margin-bottom: 3rem;
     max-width: 540px;
 
 	.post-content {
@@ -118,5 +161,16 @@
 	.link-wrapper {
 		position: relative;
 		margin: 0 0.25rem;
+	}
+}
+
+.space {
+	height: 2rem;
+}
+
+@media (max-width: 740px) {
+	.content-left, .content-right {
+		display: block;
+		float: none;
 	}
 }
