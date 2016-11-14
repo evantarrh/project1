@@ -58,6 +58,20 @@
 	    	background-color: lighten($blue, 7.5%);
 	    }
 	}
+	.new-message {
+		background-color: $blue;
+		border-bottom: 2px solid lighten($blue, 7.5%);
+	    border-radius: 10px;
+	    color: $white;
+	    margin-left: 0.5rem;
+	    padding: 0.5rem 1rem;
+	    text-decoration: none;
+	    transition: 0.2s ease all;
+	    top: 400;
+	    &:hover {
+	    	background-color: lighten($blue, 7.5%);
+	    }
+	}
 }
 
 .content {

@@ -491,6 +491,10 @@ def get_sent_messages(username):
     for i in range(0, len(senders)):
         senders[i]=str(senders[i][0])
     cursor.close()
+    print messages
+    print senders
+    print timestamps
+    print counter
     return messages, senders, timestamps, counter
 
 def get_messages_of_user(username):
@@ -514,4 +518,21 @@ def get_messages_of_user(username):
         senders[i]=str(senders[i][0])
 
     cursor.close()
+    print messages
+    print senders
+    print timestamps
+    print counter
     return messages, senders, timestamps, counter
+
+def add_message(username, recipient, content):
+    sender_id=find_user_from_username(username)['uid']
+    recipient_id=find_user_from_username(recipient)['uid']
+    if recipient_id == None:
+        return None
+    user_q="""INSERT INTO sent_message (sender_id, recipient_id, sent_time, content)
+                VALUES (%s, %s, current_timestamp, %s)"""
+  
+    cursor=g.conn.execute(user_q, (sender_id, recipient_id, content))
+    cursor.close()
+    return recipient_id
+
