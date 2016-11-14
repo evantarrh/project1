@@ -43,7 +43,7 @@ h2 {
       top: calc(100% - 5px);
       width: 10%; }
     .title a:hover {
-      color: #556; }
+      color: #7d7d93; }
       .title a:hover::after {
         background-color: #99a;
         left: -10px;
@@ -53,7 +53,8 @@ h2 {
   color: #99a;
   font-family: "Open Sans", sans-serif;
   font-weight: 300;
-  padding-bottom: 2rem; }
+  padding-bottom: 2rem;
+  position: relative; }
 
 .inline-link {
   color: #99a;
@@ -90,6 +91,8 @@ h2 {
   top: 4.5rem;
   font-size: 1rem;
   font-weight: 300; }
+  .upper-left .logged-in {
+    margin-left: 1rem; }
 
 .upper-right {
   font-weight: 300;
@@ -121,16 +124,16 @@ h2 {
   min-width: 760px;
   position: relative;
   width: 100%; }
-  .content .content-left, .content .feed, .content .content-right {
-    display: inline-block; }
-  .content .content-left ul, .content .content-right ul {
+  .content ul {
     margin: 0;
     padding: 0; }
-  .content .content-left li, .content .content-right li {
+  .content li {
     list-style: none;
     line-height: 2; }
-    .content .content-left li a, .content .content-right li a {
+    .content li a {
       position: relative; }
+  .content .content-left, .content .feed, .content .content-right {
+    display: inline-block; }
   .content .content-left {
     float: left;
     width: 20%; }
@@ -141,6 +144,12 @@ h2 {
   .content .content-right {
     float: right;
     width: 20%; }
+    .content .content-right .content-inner {
+      padding-right: 4rem; }
+  .content .content-message {
+    color: #99a;
+    font-weight: 300;
+    text-align: center; }
 
 .post {
   border: 1px solid #ccd;
@@ -175,11 +184,18 @@ h2 {
   .post .likes {
     right: 3.5rem; }
     .post .likes .heart {
+      cursor: pointer;
       fill: #27d;
       position: absolute;
       right: -2rem; }
 
+.nomore {
+  font-weight: 300;
+  margin: 3rem auto;
+  text-align: center; }
+
 .footer {
+  clear: both;
   font-weight: 300;
   padding: 2rem 0;
   text-align: center; }
@@ -190,8 +206,12 @@ h2 {
 .space {
   height: 2rem; }
 
+.black {
+  color: #112; }
+
 @media (max-width: 740px) {
   .content-left, .content-right {
     display: block;
     float: none; } }
+
 /*# sourceMappingURL=style.css.map */

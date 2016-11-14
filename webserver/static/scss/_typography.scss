@@ -46,7 +46,7 @@ h2 {
 		}
 
 		&:hover {
-			color: $dark-gray;
+			color: darken($medium-gray, 10%);
 
 			&::after {
 				background-color: $medium-gray;
@@ -62,6 +62,7 @@ h2 {
 	font-family: $sans;
 	font-weight: 300;
 	padding-bottom: 2rem;
+	position: relative;
 }
 
 .inline-link {

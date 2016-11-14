@@ -1,14 +1,15 @@
 #!/usr/bin/env python2.7
 
-import os
 import bcrypt
+import os
+import re
 import config, queries
 from datetime import datetime
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import (
-  Flask, request, render_template, g,
-  redirect, Response, session, abort
+  abort, Flask, request, render_template, g,
+  jsonify, redirect, Response, session,
 )
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
@@ -104,6 +105,11 @@ def signup():
     error_text = "Your password must be at least 6 characters long"
     return render_template("signup.html", error_text=error_text)
 
+  if len(username) < 3 or not re.match('^[a-z0-9]+$', username):
+    error_text = """Your username must be at least 3 characters long
+                and should only contain lowercase letters and numbers"""
+    return render_template("signup.html", error_text=error_text)
+
   if queries.username_exists_in_db(username):
     error_text = "That username is taken"
     return render_template("signup.html", error_text=error_text)    
@@ -133,8 +139,48 @@ def view_profile(username):
             }
   return render_template("user.html", **context)
 
-@app.route('/<username>/messages', methods=['GET'])
-def view_messages(username):
+@app.route('/api/like', methods=['POST'])
+def like():
+  pid = request.form['pid']
+  username = request.form['user']
+
+  if not username:
+    return jsonify({'liked': False})
+
+  queries.like_post(username, pid)
+
+  return 'goood'
+
+@app.route('/api/unlike', methods=['POST'])
+def unlike():
+  pid = request.form['pid']
+  username = request.form['user']
+
+  if not username:
+    return jsonify({'liked': True})
+
+  queries.unlike(username, pid)
+
+  return 'ok'
+
+@app.route('/api/like_query', methods=['POST'])
+def like_query():
+  pid = request.form['pid']
+  username = request.form['user']
+
+  if not username:
+    return jsonify({'liked': False})
+
+  data = {'liked' : queries.does_user_like_post(username, pid)}
+  return jsonify(data)
+  
+@app.route('/messages', methods=['GET'])
+def view_messages():
+  username = session.get('username')
+
+  if not username:
+    return render_template("messages.html")
+
   messages=None
   senders=None
   timestamp=None

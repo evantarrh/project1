@@ -159,20 +159,24 @@ def get_password_for_user(username):
     return results[0]
 
 def username_exists_in_db(username):
-    username_q = "SELECT Count(*) FROM Account WHERE username = %s"
-    cursor = g.conn.execute(username_q, (username,))
-    username_count = [result[0] for result in cursor]
+    user_q = "SELECT * FROM Account WHERE username = %s"
+    cursor = g.conn.execute(user_q, (username.lower(),))
+    user = [result[0] for result in cursor]
+
     cursor.close()
 
-    username_count = username_count[0]
-
-    return not username_count
+    return (len(user) > 0)
 
 def insert_user(username, email, password_hash):
+    reserved = ["login", "signup", "api", "messages", "logout"]
+
+    if username_exists_in_db(username) or username.lower() in reserved:
+        return
+
     insert_q = """INSERT INTO
                 Account (time_created, username, email, password)
                 VALUES (current_timestamp, %s, %s, %s)"""
-    g.conn.execute(insert_q, (username, email, password_hash))
+    g.conn.execute(insert_q, (username.lower(), email, password_hash))
 
 def find_user_from_username(username):
     user_q = """SELECT * FROM Account WHERE username = %s"""
@@ -190,6 +194,17 @@ def find_user_from_username(username):
     }
 
     return user
+
+def get_uid_from_username(username):
+    user_q = """SELECT uid FROM Account WHERE username = %s"""
+    cursor = g.conn.execute(user_q, (username.lower(),))
+    user = [result for result in cursor]
+    cursor.close()
+
+    if len(user) != 1:
+        raise RuntimeError
+
+    return user[0][0] # why
 
 ###############################
 #
@@ -242,6 +257,48 @@ def find_username_from_user(uid):
     user_q="""SELECT Account.username FROM Account WHERE Account.uid=%s"""
     cursor=g.conn.execute(user_q, (uid))
     return [result[0] for result in cursor]
+
+
+###############################
+#
+#    LIKE QUERIES
+#
+###############################
+
+def does_user_like_post(username, pid):
+    uid = get_uid_from_username(username)
+
+    if not uid:
+        return False
+
+    like_q = """SELECT * FROM Liked
+                WHERE Liked.liker_id = %s
+                AND Liked.post_id = %s"""
+
+    cursor = g.conn.execute(like_q, (uid, pid))
+
+    likes = [result[0] for result in cursor]
+    cursor.close()
+
+    return not not likes
+
+def like_post(username, pid):
+    uid = get_uid_from_username(username)
+
+    insert_q = """INSERT INTO Liked (liker_id, timestamp, post_id)
+                VALUES (%s, current_timestamp, %s)"""
+
+    g.conn.execute(insert_q, (uid, pid))
+
+def unlike(username, pid):
+    uid = get_uid_from_username(username)
+
+    delete_q = """DELETE FROM Liked
+                WHERE Liked.liker_id = %s
+                AND Liked.post_id = %s"""
+
+    g.conn.execute(delete_q, (uid, pid))
+
 ###############################
 #
 #    MESSAGES QUERIES
@@ -266,9 +323,9 @@ def get_sent_messages(username):
         counter+=1
     for i in range(0, len(senders)):
         senders[i]=str(senders[i][0])
-
     cursor.close()
     return messages, senders, timestamps, counter
+
 def get_messages_of_user(username):
     user_q= """SELECT Account.uid FROM Account
                 WHERE Account.username= %s"""
@@ -291,6 +348,7 @@ def get_messages_of_user(username):
 
     cursor.close()
     return messages, senders, timestamps, counter
+
 def add_message(username, recipient, content):
     sender_id=find_user_from_username(username)
     recipient_id=find_user_from_username(recipient)
@@ -299,5 +357,4 @@ def add_message(username, recipient, content):
                 VALUES (%s, %s, %s, %s)"""
     cursor=g.conn.execute(user_q, (sender_id, recipient_id, str(time), content))
     cursor.close()
-
 
