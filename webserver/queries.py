@@ -120,6 +120,37 @@ def get_likes_count_for_post(pid):
 
     return int(likes[0])
 
+def get_liked_posts(uid, **kwargs):
+    offset = kwargs.get('offset', 0)
+
+    posts_q = """SELECT t.*, Account.username
+                FROM (
+                    SELECT Posted.* FROM Posted, Liked
+                    WHERE Posted.pid = Liked.post_id
+                    AND Liked.liker_id = %s
+                    ORDER BY time_created DESC OFFSET {} LIMIT 20
+                ) AS t
+                INNER JOIN Account
+                ON t.uid = Account.uid
+                """.format(offset)
+
+    cursor = g.conn.execute(posts_q, (uid,))
+    posts = [{
+            'pid': result[0],
+            'replyto': result[1],
+            'uid': result[2],
+            'date': datetime.strftime(result[3], "%b %d"),
+            'content': result[4],
+            'username': result[5]
+          } for result in cursor]
+
+    for post in posts:
+        post['likes'] = get_likes_count_for_post(post['pid'])
+
+    cursor.close()
+
+    return posts
+
 ###############################
 #
 #    ACCOUNT QUERIES
@@ -298,6 +329,17 @@ def unlike(username, pid):
                 AND Liked.post_id = %s"""
 
     g.conn.execute(delete_q, (uid, pid))
+
+def get_num_likes_for_uid(uid):
+    likes_q = """SELECT Count(*) FROM Liked
+                WHERE Liked.liker_id = %s"""
+
+    cursor = g.conn.execute(likes_q, (uid,))
+    (num_rows,)=cursor.fetchone()
+    cursor.close()
+
+    return num_rows
+
 
 ###############################
 #

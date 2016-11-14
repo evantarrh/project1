@@ -59,6 +59,13 @@
 			{% else %}
 				<p>{{user.username}} doesn't belong to any channels</p>
 			{% endif %}
+			<div class="space"></div>
+			<h2>likes</h2>
+			{% if likes %}
+				<p><span class="link-wrapper"><a class="inline-link" href="/{{user.username}}/likes">{{likes}} posts</a></span></p>
+			{% else %}
+				<p>{{user.username}} hasn't liked anything</p>
+			{% endif %}
 		</div>
 	  </div>
 

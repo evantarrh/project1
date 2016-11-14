@@ -132,12 +132,28 @@ def view_profile(username):
 
   context = {'current_user': session.get('username'),
              'user': user,
+             'likes': queries.get_num_likes_for_uid(user['uid']),
              'posts': queries.get_recent_posts_from_uid(user['uid']),
              'following': queries.get_following_given_uid(user['uid']),
              'followers': queries.get_followers_of_uid(user['uid']),
              'channels': queries.get_memberships_of_uid(user['uid'])
             }
   return render_template("user.html", **context)
+
+@app.route('/<username>/likes', methods=['GET'])
+def view_likes(username):
+  user = None
+  try:
+    user = queries.find_user_from_username(username)
+  except:
+    abort(404)
+
+  context = {'current_user': session.get('username'),
+             'user': user,
+             'posts': queries.get_liked_posts(user['uid'])
+            }
+  return render_template("likes.html", **context)
+
 
 @app.route('/api/like', methods=['POST'])
 def like():
