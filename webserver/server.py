@@ -132,16 +132,33 @@ def view_profile(username):
 
   current_user = session.get('username')
 
-  context = {'current_user': current_user,
-             'is_following': queries.is_following(current_user, user['uid']),
-             'user': user,
-             'likes': queries.get_num_likes_for_uid(user['uid']),
-             'posts': queries.get_recent_posts_from_uid(user['uid']),
-             'following': queries.get_following_given_uid(user['uid']),
-             'followers': queries.get_followers_of_uid(user['uid']),
-             'channels': queries.get_memberships_of_uid(user['uid'])
-            }
+  context = {
+    'current_user': current_user,
+    'is_following': queries.is_following(current_user, user['uid']),
+    'user': user,
+    'likes': queries.get_num_likes_for_uid(user['uid']),
+    'posts': queries.get_recent_posts_from_uid(user['uid']),
+    'following': queries.get_following_given_uid(user['uid']),
+    'followers': queries.get_followers_of_uid(user['uid']),
+    'channels': queries.get_memberships_of_uid(user['uid'])
+  }
   return render_template("user.html", **context)
+
+@app.route('/channel/<channel_name>')
+def view_channel(channel_name):  
+  try:
+    context = {
+      'channel_name': channel_name,
+      'is_member': queries.is_member(session.get('username'), channel_name),
+      'description': queries.get_description(channel_name),
+      'members': queries.get_memberships_for_channel(channel_name),
+      'posts': queries.get_posts_for_channel(channel_name)
+    }
+  except Exception as e:
+    abort(404)
+
+  return render_template("channel.html", **context)
+
 
 @app.route('/<username>/likes', methods=['GET'])
 def view_likes(username):
@@ -205,7 +222,6 @@ def follow():
 
   return 'good'
   
-
 
 @app.route('/messages', methods=['GET'])
 def view_messages():

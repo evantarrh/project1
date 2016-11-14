@@ -237,6 +237,11 @@ def get_uid_from_username(username):
 
     return user[0][0] # why
 
+def find_username_from_user(uid):
+    user_q="""SELECT Account.username FROM Account WHERE Account.uid=%s"""
+    cursor=g.conn.execute(user_q, (uid))
+    return [result[0] for result in cursor]
+
 ###############################
 #
 #    FOLLOWING QUERIES
@@ -308,8 +313,7 @@ def follow(u1, u2):
 def get_memberships_of_uid(uid):
     channel_q = """SELECT Channel.name FROM Channel, Membership
            WHERE Membership.gid = Channel.gid
-           AND Membership.uid = %s
-           LIMIT 20"""
+           AND Membership.uid = %s"""
 
     cursor = g.conn.execute(channel_q, (uid,))
     channels = [result[0] for result in cursor]
@@ -317,10 +321,98 @@ def get_memberships_of_uid(uid):
 
     return channels
 
-def find_username_from_user(uid):
-    user_q="""SELECT Account.username FROM Account WHERE Account.uid=%s"""
-    cursor=g.conn.execute(user_q, (uid))
-    return [result[0] for result in cursor]
+def get_description(channel_name):
+    channel_q = """SELECT Channel.description FROM Channel
+                    WHERE Channel.name = %s"""
+
+    cursor = g.conn.execute(channel_q, (channel_name,))
+    (d,) = cursor.fetchone()
+    cursor.close()
+
+    return d
+
+def is_member(username, channel_name):
+    if not username or not channel_name:
+        return False
+
+    channel_q = """SELECT Count(*) FROM Membership
+                    WHERE Membership.uid = 
+                    (
+                        SELECT Account.uid
+                        FROM Account
+                        WHERE Account.username = %s
+                    )
+                    AND Membership.gid = 
+                    (
+                        SELECT Channel.gid
+                        FROM Channel
+                        WHERE Channel.name = %s
+                    )"""
+
+    cursor = g.conn.execute(channel_q, (username, channel_name))
+    d = cursor.fetchone()
+    cursor.close()
+
+    return not not d
+
+def get_memberships_for_channel(channel_name):
+    channel_q = """SELECT Account.username
+                FROM (
+                    SELECT Channel.*, Membership.*
+                    FROM Channel, Membership
+                    WHERE Channel.gid = Membership.gid
+                    AND Channel.name = %s
+                ) AS t
+                JOIN Account
+                ON Account.uid = t.uid"""
+
+    cursor = g.conn.execute(channel_q, (channel_name,))
+
+    members = [result[-1] for result in cursor]
+
+    cursor.close()
+
+    return members
+
+def get_posts_for_channel(channel_name, **kwargs):
+    offset = kwargs.get('offset', 0)
+
+    posts_q = """SELECT Posted.*, Account.username
+                FROM Posted
+                JOIN Account
+                ON Account.uid = Posted.uid
+                WHERE Posted.uid IN
+                (
+                    SELECT Account.uid
+                    FROM Account, Membership
+                    WHERE Account.uid = Membership.uid
+                    AND Membership.gid = 
+                    (
+                        SELECT Channel.gid
+                        FROM Channel
+                        WHERE Channel.name = %s
+                    )
+                )
+                ORDER BY Posted.time_created DESC
+                OFFSET {} LIMIT 20""".format(offset)
+
+    cursor = g.conn.execute(posts_q, (channel_name,))
+
+    posts = [{
+            'pid': result[0],
+            'replyto': result[1],
+            'date': datetime.strftime(result[3], "%b %d"),
+            'content': result[4],
+            'username': result[5]
+    } for result in cursor]
+
+    for post in posts:
+        post['likes'] = get_likes_count_for_post(post['pid'])
+
+    cursor.close()
+    
+    return posts
+
 
 
 ###############################
