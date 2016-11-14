@@ -149,6 +149,19 @@ def view_messages(username):
     timestamp=timestamp, counter=counter, sentmessages=sentmessages, recipients=recipients, senttimestamps=senttimestamps, 
     sentcounter=sentcounter)
 
+@app.route('/new_message', methods=['GET'])
+def add_message():
+  user=session.get('username')
+  if (user is None):
+
+  recipient=request.form('recipient').lower()
+  content=request.form('content')
+  try:
+    queries.add_message(username, recipient, content)
+  except:
+    abort(404)
+
+  return redirect('/messages')
 @app.route('/logout')
 def logout():
   # remove the username from the session if it's there

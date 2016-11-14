@@ -291,3 +291,13 @@ def get_messages_of_user(username):
 
     cursor.close()
     return messages, senders, timestamps, counter
+def add_message(username, recipient, content):
+    sender_id=find_user_from_username(username)
+    recipient_id=find_user_from_username(recipient)
+    time=datetime.datetime.now().time()
+    user_q="""INSERT INTO sent_message (sender_id, recipient_id, sent_time, content) 
+                VALUES (%s, %s, %s, %s)"""
+    cursor=g.conn.execute(user_q, (sender_id, recipient_id, str(time), content))
+    cursor.close()
+
+
