@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}microblog{% endblock %}
+
+{% block body %}
+	{% include 'account_helper.html' %}
+	{% include 'home_link.html' %}
+
+	<div class="hero">
+		<h1 class="title">notifications</h1>
+	</div>
+
+	<div class="content">
+		{% if notifications %}
+		    {% for notification in notifications %}
+		    	{% if not notification.seen %}
+					<div class="post new" data-seen="{{notification.seen}}" data-nid="{{notification.nid}}">
+		      			<p class="post-content">{{notification.description|safe}}</p>
+		      			<span class="date">{{notification.date}}</span>
+  	        		</div>
+				{% else %}				    	
+				      <div class="post" data-seen="{{notification.seen}}" data-nid="{{notification.nid}}"
+				      class="post">
+				      	<p class="post-content">{{notification.description|safe}}</p>
+				      	<span class="date">{{notification.date}}</span>
+		  	        </div>
+		    	{% endif %}
+		    {% endfor %}
+		{% else %}
+			<div class="nomore">
+			<p>no notifications</p></div>
+		{% endif %}
+	  </div>
+  </div>
+  
+  {% include 'footer.html' %}
+{% endblock %}

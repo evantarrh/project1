@@ -178,6 +178,8 @@ h4 {
   margin: 0 auto;
   margin-bottom: 3rem;
   max-width: 540px; }
+  .post.new {
+    border: 1px solid #27d; }
   .post .post-content {
     font-size: 1.0625rem;
     font-weight: 300;
@@ -205,6 +207,16 @@ h4 {
       fill: #27d;
       position: absolute;
       right: -2rem; }
+
+.notif-button {
+  background-color: #f78;
+  border-radius: 50px;
+  color: white;
+  padding: 10px;
+  text-decoration: none;
+  transition: 0.2s ease all; }
+  .notif-button:hover {
+    background-color: #ff445b; }
 
 .nomore {
   font-weight: 300;

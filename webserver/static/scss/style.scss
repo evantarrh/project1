@@ -139,6 +139,10 @@
     margin-bottom: 3rem;
     max-width: 540px;
 
+    &.new {
+    	border: 1px solid $blue;
+    }
+
 	.post-content {
 	    font-size: 1.0625rem;
 	    font-weight: 300;
@@ -177,6 +181,19 @@
 			right: -2rem;
 		}
 	}
+}
+
+.notif-button {
+    background-color: $red;
+    border-radius: 50px;
+    color: white;
+    padding: 10px;
+    text-decoration: none;
+    transition: 0.2s ease all;
+
+    &:hover {
+    	background-color: darken($red, 10%);
+    }
 }
 
 .nomore {

@@ -51,16 +51,19 @@ def internal_server_error(e):
 def index():
   current_user = session.get('username')
   suggested_users = []
+  notification_count = 0
 
   if current_user:
     posts = queries.get_homepage_posts_for_user(current_user)
     suggested_users = queries.get_suggested_users()
+    notification_count = queries.num_notifications_for_user(current_user)
 
   else:
     posts = queries.get_all_recent_posts()
     
   context = dict(posts=posts,
-                 suggested_users=suggested_users)
+                 suggested_users=suggested_users,
+                 notification_count=notification_count)
 
   return render_template("index.html", **context)
 
@@ -168,11 +171,31 @@ def view_likes(username):
   except:
     abort(404)
 
-  context = {'current_user': session.get('username'),
-             'user': user,
-             'posts': queries.get_liked_posts(user['uid'])
-            }
+  context = {
+    'current_user': session.get('username'),
+    'user': user,
+    'posts': queries.get_liked_posts(user['uid'])
+  }
+
   return render_template("likes.html", **context)
+
+@app.route('/notifications', methods=['GET'])
+def notifications():
+  current_user = session.get('username')
+
+  if not current_user:
+    abort(404)
+
+  notifications = queries.get_notifications_for_user(current_user)
+
+  for n in notifications:
+    queries.clear_notification(n['nid'])
+
+  context = {
+    'notifications': notifications
+  }
+
+  return render_template('notifications.html', **context)
 
 
 @app.route('/api/like', methods=['POST'])
@@ -184,6 +207,7 @@ def like():
     return jsonify({'liked': False})
 
   queries.like_post(username, pid)
+  queries.like_notification(username, pid)
 
   return 'goood'
 

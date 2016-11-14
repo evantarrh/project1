@@ -536,3 +536,100 @@ def add_message(username, recipient, content):
     cursor.close()
     return recipient_id
 
+
+##############################
+#
+#    NOTIFICATION QUERIES
+#
+##############################
+
+def get_notifications_for_user(username, **kwargs):
+    offset = kwargs.get('offset', 0)
+
+    uid = get_uid_from_username(username)
+
+    notif_q = """SELECT Receive_notification.*
+                 FROM Receive_notification, Account
+                 WHERE Receive_notification.recipient_id = Account.uid
+                 AND Account.uid = %s
+                 ORDER BY Receive_notification.time_created DESC
+                 OFFSET {} LIMIT 20""".format(offset)
+
+    cursor = g.conn.execute(notif_q, (uid,))
+    results = [{
+        'nid': result[0],
+        'date': datetime.strftime(result[2], "%b %d"),
+        'seen': result[3],
+        'description': result[4]
+    } for result in cursor]
+    cursor.close()
+
+    return results
+
+def num_notifications_for_user(username):
+    q = """SELECT Count(*) FROM Receive_notification
+            WHERE Receive_notification.recipient_id =
+            (
+                SELECT uid FROM Account
+                WHERE Account.username = %s
+            )
+            AND Receive_notification.seen = 'false'"""
+
+    cursor = g.conn.execute(q, (username,))
+    (num_not,) = cursor.fetchone()
+    cursor.close()
+
+    return num_not
+
+def clear_notification(nid):
+    q = """UPDATE Receive_notification
+            SET seen = true
+            WHERE nid = %s"""
+
+    g.conn.execute(q, (nid,))
+
+def like_notification(username, pid):
+    # first, find notification target
+    target_q = """SELECT Account.uid
+                  FROM Account, Posted
+                  WHERE Account.uid = Posted.uid
+                  AND Posted.pid = %s"""
+    cursor = g.conn.execute(target_q, (pid,))
+    (target,) = cursor.fetchone()
+    (target_username,) = find_username_from_user(target)
+
+    description = """
+        <span class="link-wrapper"><a class="inline-link" href="/{}">@{}</a></span>
+            liked your
+        <span class="link-wrapper"><a class="inline-link" href="{}/{}">post</a></span>
+    """.format(username, username, target_username, pid)
+
+    q = """INSERT INTO
+            Receive_notification (recipient_id, time_created, seen, description)
+            VALUES (%s, current_timestamp, %s, %s)"""
+    g.conn.execute(q, (target, False, description))
+
+# def message_notification(username):
+#     # first, find notification target
+#     target_q = """SELECT Account.uid
+#                   FROM Account, Posted
+#                   WHERE Account.uid = Posted.uid
+#                   AND Posted.pid = %s"""
+#     cursor = g.conn.execute(target_q, (pid,))
+#     (target,) = cursor.fetchone()
+#     (target_username,) = find_username_from_user(target)
+
+#     description = """
+#         <span class="link-wrapper"><a class="inline-link" href="/{}">@{}</a></span>
+#             liked your
+#         <span class="link-wrapper"><a class="inline-link" href="{}/{}">post</a></span>
+#     """.format(username, username, target_username, pid)
+
+#     q = """INSERT INTO
+#             Receive_notification (recipient_id, time_created, seen, description)
+#             VALUES (%s, current_timestamp, %s, %s)"""
+#     g.conn.execute(q, (target, False, description))
+
+
+
+
