@@ -246,6 +246,7 @@ def add_message():
     abort(404)
   
   return redirect('/messages')
+@app.route('/new')
 @app.route('/logout')
 def logout():
   # remove the username from the session if it's there
