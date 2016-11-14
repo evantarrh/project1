@@ -399,10 +399,6 @@ def get_sent_messages(username):
     for i in range(0, len(senders)):
         senders[i]=str(senders[i][0])
     cursor.close()
-    print messages
-    print senders
-    print timestamps
-    print counter
     return messages, senders, timestamps, counter
 
 def get_messages_of_user(username):
@@ -426,10 +422,6 @@ def get_messages_of_user(username):
         senders[i]=str(senders[i][0])
 
     cursor.close()
-    print messages
-    print senders
-    print timestamps
-    print counter
     return messages, senders, timestamps, counter
 
 def add_message(username, recipient, content):
@@ -443,4 +435,23 @@ def add_message(username, recipient, content):
     cursor=g.conn.execute(user_q, (sender_id, recipient_id, content))
     cursor.close()
     return recipient_id
+
+def add_post(replyto, username, content):
+    poster_id=find_user_from_username(username)['uid']
+    if replyto is None:
+        user_q="""INSERT INTO Posted (uid, time_created, content)
+                VALUES (%s, current_timestamp, %s)"""
+        cursor=g.conn.execute(user_q, (username, content))
+    else:
+        user_q="""INSERT INTO Posted (replytoid, uid, time_created, content)
+                VALUES (%s, %s, current_timestamp, %s)"""
+        cursor=g.conn.execute(user_q, (replyto, username, content))
+    
+    pid_q="""SELECT MAX(pid) FROM Posted"""
+    pid=[result[0] for result in cursor]
+    cursor.close()
+    return pid
+
+
+
 

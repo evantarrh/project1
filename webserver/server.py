@@ -242,11 +242,50 @@ def add_message():
       return render_template("newmessage.html", username=None)
   
   except Exception as e:
-    print e
     abort(404)
   
   return redirect('/messages')
+
 @app.route('/new')
+def add_post():
+  username=session.get('username')
+  if request.method == 'GET':
+    return render_template("newpost.html", username=username)
+  
+  if username is None:
+    return render_template("newpost.html", username=None)
+  
+  content=request.form['content']
+  try:
+    timestamp=queries.add_post(None, username, content)
+    
+  except Exception as e:
+    abort(404)
+  
+  return render_template("posts.html", replyto=None, username=username, content=content)
+
+@app.route('/<username>/reply', methods=['GET', 'POST'])
+def handle_replies(username):
+  username=session.get('username')
+  if request.method == 'GET':
+    return render_template("newpost.html", username=username)
+  
+  if username is None:
+    return render_template("newpost.html", username=None)
+  
+  content=request.form['content']
+  try:
+    pid=queries.add_post(replyto, username, content)
+    
+  except Exception as e:
+    abort(404)
+  
+  return redirect('/<username>/<pid>', replyto=replyto, username=username, content=content)
+
+@app.route('/<username>/<pid>')
+def render_post(replyto, username, content):
+  return render_template("posts.html", replyto=replyto, username=username, content=content)
+
 @app.route('/logout')
 def logout():
   # remove the username from the session if it's there

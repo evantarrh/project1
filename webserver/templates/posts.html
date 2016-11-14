@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}microblog{% endblock %}
+
+{% block body %}
+
+  {% include 'home_link.html' %}
+  {% include 'account_helper.html' %}
+  <div class="hero">
+      <h1 class="title">post</h1>
+  </div>
+  
+  <div class="content">
+    <div class="feed">
+      <div class="post">
+        <p class="post-content">{{content}}</p>
+        <span class="user">{{username}}</span>
+      </div>
+    </div>
+  </div>
+
+  {% include 'footer.html' %}
+  
+{% endblock %}
