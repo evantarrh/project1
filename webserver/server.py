@@ -150,14 +150,21 @@ def view_profile(username):
 @app.route('/channel/<channel_name>')
 def view_channel(channel_name):  
   try:
+    members = queries.get_memberships_for_channel(channel_name)
+    admin = queries.get_channel_admin(channel_name)
+
+    members.remove(admin)
+
     context = {
       'channel_name': channel_name,
+      'admin': admin,
+      'members': members,
       'is_member': queries.is_member(session.get('username'), channel_name),
       'description': queries.get_description(channel_name),
-      'members': queries.get_memberships_for_channel(channel_name),
       'posts': queries.get_posts_for_channel(channel_name)
     }
   except Exception as e:
+    print e
     abort(404)
 
   return render_template("channel.html", **context)

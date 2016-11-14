@@ -14,7 +14,6 @@
 
     {% if counter > 0 or sentcounter > 0 %}
       <div class="content">
-        <div class="feed">
         {% for i in range(0, counter) %}
           <div class="post">
             <p class="post-content">{{messages[i]}}</p>
@@ -29,7 +28,6 @@
             <span class="user"><a href="/{{recipients[i]}}" class="inline-link">to: {{recipients[i]}}</a></span>
           </div>
         {% endfor %}
-        </div>
       </div>
     {% else %}
       <div class="content">
@@ -38,7 +36,6 @@
         </div>
       </div>
     {% endif %}
-
   {% else %}
 
     <div class="content">

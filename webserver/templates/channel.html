@@ -29,6 +29,9 @@
 			<div class="list-wrapper">
 				{% if members %}
 					<ul>
+						{% if admin %}
+							<li><span class="link-wrapper"><a href="/{{admin}}" class="inline-link">&commat;{{admin}} (admin)</a></span></li>
+						{% endif %}
 					    {% for member in members %}
 					      <li><span class="link-wrapper"><a href="/{{member}}" class="inline-link">&commat;{{member}}</a></span></li>
 					    {% endfor %}

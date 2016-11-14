@@ -425,6 +425,21 @@ def join_channel(member, channel):
                     VALUES (%s, %s)"""
     g.conn.execute(insert_q, (uid, gid))
 
+def get_channel_admin(channel_name):
+    q = """SELECT Account.username FROM Account, Channel
+            WHERE Account.uid = Channel.admin_id
+            AND Channel.gid = 
+            (
+                SELECT Channel.gid
+                FROM Channel
+                WHERE lower(Channel.name) = %s
+            )"""
+
+    cursor = g.conn.execute(q, (channel_name.lower(),))
+    (admin_name,) = cursor.fetchone()
+    cursor.close()
+
+    return admin_name
 
 ###############################
 #
