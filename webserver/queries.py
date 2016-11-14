@@ -249,7 +249,13 @@ def get_memberships_of_uid(uid):
 
     return channels
 
+def find_username_from_user(uid):
+    user_q="""SELECT Account.username FROM Account WHERE Account.uid=%s"""
+    cursor=g.conn.execute(user_q, (uid))
+    return [result[0] for result in cursor]
 
+
+<<<<<<< HEAD
 ###############################
 #
 #    LIKE QUERIES
@@ -290,3 +296,52 @@ def unlike(username, pid):
 
     g.conn.execute(delete_q, (uid, pid))
 
+###############################
+#
+#    MESSAGES QUERIES
+#
+###############################
+def get_sent_messages(username):
+    user_q="""SELECT Account.uid FROM Account
+                WHERE Account.username= %s"""
+    cursor = g.conn.execute(user_q, (username))
+    user= [result[0] for result in cursor]
+    messages_q="""SELECT sent_message.content, sent_message.recipient_id, sent_message.sent_time FROM sent_message
+                    WHERE sent_message.sender_id = %s"""
+    cursor = g.conn.execute(messages_q, (user))
+    messages=[]
+    senders=[]
+    timestamps=[]
+    counter=0
+    for result in cursor:
+        messages.append(result[0])
+        senders.append(find_username_from_user(result[1]))
+        timestamps.append(datetime.strftime(result[2], "%b %d"))
+        counter+=1
+    for i in range(0, len(senders)):
+        senders[i]=str(senders[i][0])
+    cursor.close()
+    return messages, senders, timestamps, counter
+
+def get_messages_of_user(username):
+    user_q= """SELECT Account.uid FROM Account
+                WHERE Account.username= %s"""
+    cursor = g.conn.execute(user_q, (username))
+    user= [result[0] for result in cursor]
+    messages_q="""SELECT sent_message.content, sent_message.sender_id, sent_message.sent_time FROM sent_message
+                    WHERE sent_message.recipient_id = %s"""
+    cursor = g.conn.execute(messages_q, (user))
+    messages=[]
+    senders=[]
+    timestamps=[]
+    counter=0
+    for result in cursor:
+        messages.append(result[0])
+        senders.append(find_username_from_user(result[1]))
+        timestamps.append(datetime.strftime(result[2], "%b %d"))
+        counter+=1
+    for i in range(0, len(senders)):
+        senders[i]=str(senders[i][0])
+
+    cursor.close()
+    return messages, senders, timestamps, counter

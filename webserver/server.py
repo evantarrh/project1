@@ -86,6 +86,7 @@ def login():
   session['username'] = username
   return redirect('/')
 
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
   if request.method == 'GET':
@@ -130,7 +131,6 @@ def view_profile(username):
              'followers': queries.get_followers_of_uid(user['uid']),
              'channels': queries.get_memberships_of_uid(user['uid'])
             }
-
   return render_template("user.html", **context)
 
 @app.route('/api/like', methods=['POST'])
@@ -168,6 +168,22 @@ def like_query():
   data = {'liked' : queries.does_user_like_post(username, pid)}
   return jsonify(data)
   
+@app.route('/<username>/messages', methods=['GET'])
+def view_messages(username):
+  messages=None
+  senders=None
+  timestamp=None
+  try:
+    messages, senders, timestamp, counter=queries.get_messages_of_user(username)
+    sentmessages, recipients, senttimestamps, sentcounter=queries.get_sent_messages(username)
+
+  except:
+    abort(404)
+  
+  return render_template("messages.html", user=username, messages=messages, senders=senders, 
+    timestamp=timestamp, counter=counter, sentmessages=sentmessages, recipients=recipients, senttimestamps=senttimestamps, 
+    sentcounter=sentcounter)
+
 @app.route('/logout')
 def logout():
   # remove the username from the session if it's there
