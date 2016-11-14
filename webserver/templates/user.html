@@ -11,6 +11,14 @@
 		{% if user.bio %}
 			<h3 class="subtitle">{{user.bio}}</h3>
 		{% endif %}
+		{% if 'username' in session and session['username'] != user.username %}
+			{% if is_following %}
+				<h4>you follow &commat;{{user.username}}</h4>
+			{% else %}
+				<h4><span class="link-wrapper"><a href="#" class="inline-link follow-link" data-follower="{{session['username']}}" data-followee="{{user.username}}">follow &commat;{{user.username}}?</a></span></h4>
+			{% endif %}
+		{% endif %}
+
 	</div>
 
 	<div class="content">
@@ -59,6 +67,13 @@
 			{% else %}
 				<p>{{user.username}} doesn't belong to any channels</p>
 			{% endif %}
+			<div class="space"></div>
+			<h2>likes</h2>
+			{% if likes %}
+				<p><span class="link-wrapper"><a class="inline-link" href="/{{user.username}}/likes">{{likes}} posts</a></span></p>
+			{% else %}
+				<p>{{user.username}} hasn't liked anything</p>
+			{% endif %}
 		</div>
 	  </div>
 
@@ -80,5 +95,7 @@
   </div>
   
   {% include 'footer.html' %}
+
+  <script type="text/javascript" src="{{ url_for('static', filename='js/user.js') }}"></script>
 
 {% endblock %}

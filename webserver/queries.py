@@ -120,6 +120,37 @@ def get_likes_count_for_post(pid):
 
     return int(likes[0])
 
+def get_liked_posts(uid, **kwargs):
+    offset = kwargs.get('offset', 0)
+
+    posts_q = """SELECT t.*, Account.username
+                FROM (
+                    SELECT Posted.* FROM Posted, Liked
+                    WHERE Posted.pid = Liked.post_id
+                    AND Liked.liker_id = %s
+                    ORDER BY time_created DESC OFFSET {} LIMIT 20
+                ) AS t
+                INNER JOIN Account
+                ON t.uid = Account.uid
+                """.format(offset)
+
+    cursor = g.conn.execute(posts_q, (uid,))
+    posts = [{
+            'pid': result[0],
+            'replyto': result[1],
+            'uid': result[2],
+            'date': datetime.strftime(result[3], "%b %d"),
+            'content': result[4],
+            'username': result[5]
+          } for result in cursor]
+
+    for post in posts:
+        post['likes'] = get_likes_count_for_post(post['pid'])
+
+    cursor.close()
+
+    return posts
+
 ###############################
 #
 #    ACCOUNT QUERIES
@@ -234,6 +265,39 @@ def get_followers_of_uid(uid):
 
     return followers
 
+def is_following(username, uid):
+    """
+    does {username} follow {uid}
+    """
+    if not username or not uid:
+        return False
+
+    u1 = get_uid_from_username(username)
+
+    follow_q = """SELECT Count(*) FROM Followed
+                WHERE Followed.follower_id = %s
+                AND Followed.subject_id = %s"""
+
+    cursor = g.conn.execute(follow_q, (u1, uid))
+    (f,) = cursor.fetchone()
+
+    return not not f
+
+def follow(u1, u2):
+    """
+    params are both usernames
+    """
+    if is_following(u1, get_uid_from_username(u2)):
+        return
+
+    u1 = get_uid_from_username(u1)
+    u2 = get_uid_from_username(u2)
+
+    insert_q = """INSERT INTO Followed
+                VALUES (%s, %s, current_timestamp)"""
+
+    g.conn.execute(insert_q, (u1, u2))
+
 
 ###############################
 #
@@ -298,6 +362,17 @@ def unlike(username, pid):
                 AND Liked.post_id = %s"""
 
     g.conn.execute(delete_q, (uid, pid))
+
+def get_num_likes_for_uid(uid):
+    likes_q = """SELECT Count(*) FROM Liked
+                WHERE Liked.liker_id = %s"""
+
+    cursor = g.conn.execute(likes_q, (uid,))
+    (num_rows,)=cursor.fetchone()
+    cursor.close()
+
+    return num_rows
+
 
 ###############################
 #
