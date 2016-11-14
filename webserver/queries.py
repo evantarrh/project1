@@ -255,7 +255,6 @@ def find_username_from_user(uid):
     return [result[0] for result in cursor]
 
 
-<<<<<<< HEAD
 ###############################
 #
 #    LIKE QUERIES
