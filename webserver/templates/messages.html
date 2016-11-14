@@ -14,22 +14,20 @@
 
     {% if counter > 0 or sentcounter > 0 %}
       <div class="content">
-        <div class="feed">
         {% for i in range(0, counter) %}
           <div class="post">
             <p class="post-content">{{messages[i]}}</p>
             <span class="date">{{timestamp[i]}}</span>
-            <span class="user"><a href="/{{senders}}" class="inline-link">from: {{senders[i]}}</a></span>
+            <span class="user"><a href="/{{senders[i]}}" class="inline-link">from: {{senders[i]}}</a></span>
           </div>
         {% endfor %}
         {% for i in range(0, sentcounter) %}
           <div class="post">
             <p class="post-content">{{sentmessages[i]}}</p>
             <span class="date">{{senttimestamps[i]}}</span>
-            <span class="user"><a href="/{{recipients}}" class="inline-link">to: {{recipients[i]}}</a></span>
+            <span class="user"><a href="/{{recipients[i]}}" class="inline-link">to: {{recipients[i]}}</a></span>
           </div>
         {% endfor %}
-        </div>
       </div>
     {% else %}
       <div class="content">
@@ -38,7 +36,6 @@
         </div>
       </div>
     {% endif %}
-
   {% else %}
 
     <div class="content">

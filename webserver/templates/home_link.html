@@ -4,5 +4,9 @@
 	{% if 'username' in session %}
 		<span class="link-wrapper logged-in"><a href="/new" class="inline-link">new post</a></span>
 	{% endif %}
+
+	{% if notification_count %}
+		<span class="link-wrapper logged-in"><a href="/notifications" class="notif-button">{{notification_count}}</a></span>
+	{% endif %}
 	
 </div>

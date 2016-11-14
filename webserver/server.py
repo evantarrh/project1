@@ -51,16 +51,19 @@ def internal_server_error(e):
 def index():
   current_user = session.get('username')
   suggested_users = []
+  notification_count = 0
 
   if current_user:
     posts = queries.get_homepage_posts_for_user(current_user)
     suggested_users = queries.get_suggested_users()
+    notification_count = queries.num_notifications_for_user(current_user)
 
   else:
     posts = queries.get_all_recent_posts()
     
   context = dict(posts=posts,
-                 suggested_users=suggested_users)
+                 suggested_users=suggested_users,
+                 notification_count=notification_count)
 
   return render_template("index.html", **context)
 
@@ -132,16 +135,40 @@ def view_profile(username):
 
   current_user = session.get('username')
 
-  context = {'current_user': current_user,
-             'is_following': queries.is_following(current_user, user['uid']),
-             'user': user,
-             'likes': queries.get_num_likes_for_uid(user['uid']),
-             'posts': queries.get_recent_posts_from_uid(user['uid']),
-             'following': queries.get_following_given_uid(user['uid']),
-             'followers': queries.get_followers_of_uid(user['uid']),
-             'channels': queries.get_memberships_of_uid(user['uid'])
-            }
+  context = {
+    'current_user': current_user,
+    'is_following': queries.is_following(current_user, user['uid']),
+    'user': user,
+    'likes': queries.get_num_likes_for_uid(user['uid']),
+    'posts': queries.get_recent_posts_from_uid(user['uid']),
+    'following': queries.get_following_given_uid(user['uid']),
+    'followers': queries.get_followers_of_uid(user['uid']),
+    'channels': queries.get_memberships_of_uid(user['uid'])
+  }
   return render_template("user.html", **context)
+
+@app.route('/channel/<channel_name>')
+def view_channel(channel_name):  
+  try:
+    members = queries.get_memberships_for_channel(channel_name)
+    admin = queries.get_channel_admin(channel_name)
+
+    members.remove(admin)
+
+    context = {
+      'channel_name': channel_name,
+      'admin': admin,
+      'members': members,
+      'is_member': queries.is_member(session.get('username'), channel_name),
+      'description': queries.get_description(channel_name),
+      'posts': queries.get_posts_for_channel(channel_name)
+    }
+  except Exception as e:
+    print e
+    abort(404)
+
+  return render_template("channel.html", **context)
+
 
 @app.route('/<username>/likes', methods=['GET'])
 def view_likes(username):
@@ -151,11 +178,31 @@ def view_likes(username):
   except:
     abort(404)
 
-  context = {'current_user': session.get('username'),
-             'user': user,
-             'posts': queries.get_liked_posts(user['uid'])
-            }
+  context = {
+    'current_user': session.get('username'),
+    'user': user,
+    'posts': queries.get_liked_posts(user['uid'])
+  }
+
   return render_template("likes.html", **context)
+
+@app.route('/notifications', methods=['GET'])
+def notifications():
+  current_user = session.get('username')
+
+  if not current_user:
+    abort(404)
+
+  notifications = queries.get_notifications_for_user(current_user)
+
+  for n in notifications:
+    queries.clear_notification(n['nid'])
+
+  context = {
+    'notifications': notifications
+  }
+
+  return render_template('notifications.html', **context)
 
 
 @app.route('/api/like', methods=['POST'])
@@ -167,6 +214,7 @@ def like():
     return jsonify({'liked': False})
 
   queries.like_post(username, pid)
+  queries.like_notification(username, pid)
 
   return 'goood'
 
@@ -202,10 +250,22 @@ def follow():
     return jsonify({'worked': False})
 
   queries.follow(follower, followee)
+  queries.follow_notification(follower, followee)
+
+  return 'good'
+
+@app.route('/api/join', methods=['POST'])
+def join():
+  member = request.form['member']
+  channel = request.form['channel']
+
+  if not member or not channel:
+    return jsonify({'worked': False})
+
+  queries.join_channel(member, channel)
 
   return 'good'
   
-
 
 @app.route('/messages', methods=['GET'])
 def view_messages():
@@ -243,6 +303,8 @@ def add_message():
   
   except Exception as e:
     abort(404)
+
+  queries.message_notification(username, recipient)
   
   return redirect('/messages')
 
