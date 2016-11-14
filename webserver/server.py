@@ -195,25 +195,29 @@ def view_messages():
     timestamp=timestamp, counter=counter, sentmessages=sentmessages, recipients=recipients, senttimestamps=senttimestamps, 
     sentcounter=sentcounter)
 
-@app.route('/new_message', methods=['GET'])
+@app.route('/new_message', methods=['GET', 'POST'])
 def add_message():
-  user=session.get('username')
-  if (user is None):
-
-  recipient=request.form('recipient').lower()
-  content=request.form('content')
+  username=session.get('username')
+  if request.method == 'GET':
+    return render_template("newmessage.html", username=username)
+  
+  recipient=request.form['recipient'].lower()
+  content=request.form['content']
   try:
-    queries.add_message(username, recipient, content)
-  except:
+    value=queries.add_message(username, recipient, content)
+    if value is None:
+      return render_template("newmessage.html", username=None)
+  
+  except Exception as e:
+    print e
     abort(404)
-
+  
   return redirect('/messages')
 @app.route('/logout')
 def logout():
   # remove the username from the session if it's there
   session.pop('username', None)
   return redirect('/')
-
 
 if __name__ == "__main__":
   import click

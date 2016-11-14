@@ -6,15 +6,12 @@
 
   {% include 'home_link.html' %}
   {% include 'account_helper.html' %}
-  <div class="upper-right">
-    <span class="account-stuff">
-      <a href="/new_message" class="new-message">new message</a>
-    </span>
-  </div>
   <div class="hero">
       <h1 class="title">messages</h1>
   </div>
+
   {% if 'username' in session %}
+
     {% if counter > 0 %}
       <div class="content">
         <div class="feed">
