@@ -122,6 +122,18 @@ h4 {
     transition: 0.2s ease all; }
     .upper-right .signup:hover {
       background-color: #438be2; }
+  .upper-right .new-message {
+    background-color: #27d;
+    border-bottom: 2px solid #438be2;
+    border-radius: 10px;
+    color: #fff;
+    margin-left: 0.5rem;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    transition: 0.2s ease all;
+    top: 400; }
+    .upper-right .new-message:hover {
+      background-color: #438be2; }
 
 .content {
   font-weight: 300;
