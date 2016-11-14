@@ -18,6 +18,12 @@ h2 {
 	margin-bottom: 0.5rem;
 }
 
+h4 {
+	font-size: 0.875rem;
+	font-weight: 300;
+	color: $medium-gray;
+}
+
 .title {
 	font-family: $sans;
 	font-size: 3rem;
@@ -61,7 +67,7 @@ h2 {
 	color: $medium-gray;
 	font-family: $sans;
 	font-weight: 300;
-	padding-bottom: 2rem;
+	padding-bottom: 1rem;
 	position: relative;
 }
 

@@ -265,6 +265,39 @@ def get_followers_of_uid(uid):
 
     return followers
 
+def is_following(username, uid):
+    """
+    does {username} follow {uid}
+    """
+    if not username or not uid:
+        return False
+
+    u1 = get_uid_from_username(username)
+
+    follow_q = """SELECT Count(*) FROM Followed
+                WHERE Followed.follower_id = %s
+                AND Followed.subject_id = %s"""
+
+    cursor = g.conn.execute(follow_q, (u1, uid))
+    (f,) = cursor.fetchone()
+
+    return not not f
+
+def follow(u1, u2):
+    """
+    params are both usernames
+    """
+    if is_following(u1, get_uid_from_username(u2)):
+        return
+
+    u1 = get_uid_from_username(u1)
+    u2 = get_uid_from_username(u2)
+
+    insert_q = """INSERT INTO Followed
+                VALUES (%s, %s, current_timestamp)"""
+
+    g.conn.execute(insert_q, (u1, u2))
+
 
 ###############################
 #
