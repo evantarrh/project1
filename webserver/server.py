@@ -243,6 +243,19 @@ def follow():
     return jsonify({'worked': False})
 
   queries.follow(follower, followee)
+  queries.follow_notification(follower, followee)
+
+  return 'good'
+
+@app.route('/api/join', methods=['POST'])
+def join():
+  member = request.form['member']
+  channel = request.form['channel']
+
+  if not member or not channel:
+    return jsonify({'worked': False})
+
+  queries.join_channel(member, channel)
 
   return 'good'
   
@@ -284,6 +297,8 @@ def add_message():
   except Exception as e:
     print e
     abort(404)
+
+  queries.message_notification(username, recipient)
   
   return redirect('/messages')
 @app.route('/new')

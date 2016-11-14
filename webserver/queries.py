@@ -350,7 +350,7 @@ def is_member(username, channel_name):
                     )"""
 
     cursor = g.conn.execute(channel_q, (username, channel_name))
-    d = cursor.fetchone()
+    (d,) = cursor.fetchone()
     cursor.close()
 
     return not not d
@@ -413,6 +413,17 @@ def get_posts_for_channel(channel_name, **kwargs):
     
     return posts
 
+def join_channel(member, channel):
+    uid = get_uid_from_username(member)
+    print uid
+
+    q = """SELECT gid FROM Channel WHERE name = %s"""
+    cursor = g.conn.execute(q, (channel,))
+    (gid,) = cursor.fetchone()
+
+    insert_q = """INSERT INTO Membership
+                    VALUES (%s, %s)"""
+    g.conn.execute(insert_q, (uid, gid))
 
 
 ###############################
@@ -609,26 +620,32 @@ def like_notification(username, pid):
             VALUES (%s, current_timestamp, %s, %s)"""
     g.conn.execute(q, (target, False, description))
 
-# def message_notification(username):
-#     # first, find notification target
-#     target_q = """SELECT Account.uid
-#                   FROM Account, Posted
-#                   WHERE Account.uid = Posted.uid
-#                   AND Posted.pid = %s"""
-#     cursor = g.conn.execute(target_q, (pid,))
-#     (target,) = cursor.fetchone()
-#     (target_username,) = find_username_from_user(target)
+def message_notification(username, target):
+    u2 = get_uid_from_username(target)
 
-#     description = """
-#         <span class="link-wrapper"><a class="inline-link" href="/{}">@{}</a></span>
-#             liked your
-#         <span class="link-wrapper"><a class="inline-link" href="{}/{}">post</a></span>
-#     """.format(username, username, target_username, pid)
+    description = """
+        <span class="link-wrapper"><a class="inline-link" href="/{}">@{}</a></span>
+            sent you a message. view
+        <span class="link-wrapper"><a class="inline-link" href="/messages">here</a></span>
+    """.format(username, username)
 
-#     q = """INSERT INTO
-#             Receive_notification (recipient_id, time_created, seen, description)
-#             VALUES (%s, current_timestamp, %s, %s)"""
-#     g.conn.execute(q, (target, False, description))
+    q = """INSERT INTO
+            Receive_notification (recipient_id, time_created, seen, description)
+            VALUES (%s, current_timestamp, %s, %s)"""
+    g.conn.execute(q, (u2, False, description))
+
+def follow_notification(username, target):
+    u2 = get_uid_from_username(target)
+
+    description = """
+        <span class="link-wrapper"><a class="inline-link" href="/{}">@{}</a></span>
+            followed you :^)
+    """.format(username, username)
+
+    q = """INSERT INTO
+            Receive_notification (recipient_id, time_created, seen, description)
+            VALUES (%s, current_timestamp, %s, %s)"""
+    g.conn.execute(q, (u2, False, description))
 
 
 
