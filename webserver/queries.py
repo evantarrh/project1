@@ -399,6 +399,10 @@ def get_sent_messages(username):
     for i in range(0, len(senders)):
         senders[i]=str(senders[i][0])
     cursor.close()
+    print messages
+    print senders
+    print timestamps
+    print counter
     return messages, senders, timestamps, counter
 
 def get_messages_of_user(username):
@@ -422,6 +426,10 @@ def get_messages_of_user(username):
         senders[i]=str(senders[i][0])
 
     cursor.close()
+    print messages
+    print senders
+    print timestamps
+    print counter
     return messages, senders, timestamps, counter
 
 def add_message(username, recipient, content):
