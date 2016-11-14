@@ -46,7 +46,7 @@ h2 {
 		}
 
 		&:hover {
-			color: $dark-gray;
+			color: darken($medium-gray, 10%);
 
 			&::after {
 				background-color: $medium-gray;

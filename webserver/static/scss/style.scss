@@ -146,6 +146,7 @@
 		right: 3.5rem;
 
 		.heart {
+			cursor: pointer;
 			fill: $blue;
 			position: absolute;
 			right: -2rem;
@@ -153,7 +154,14 @@
 	}
 }
 
+.nomore {
+	font-weight: 300;
+	margin: 3rem auto;
+	text-align: center;
+}
+
 .footer {
+	clear: both;
 	font-weight: 300;
 	padding: 2rem 0;
 	text-align: center;

@@ -43,7 +43,7 @@ h2 {
       top: calc(100% - 5px);
       width: 10%; }
     .title a:hover {
-      color: #556; }
+      color: #7d7d93; }
       .title a:hover::after {
         background-color: #99a;
         left: -10px;
@@ -175,11 +175,18 @@ h2 {
   .post .likes {
     right: 3.5rem; }
     .post .likes .heart {
+      cursor: pointer;
       fill: #27d;
       position: absolute;
       right: -2rem; }
 
+.nomore {
+  font-weight: 300;
+  margin: 3rem auto;
+  text-align: center; }
+
 .footer {
+  clear: both;
   font-weight: 300;
   padding: 2rem 0;
   text-align: center; }

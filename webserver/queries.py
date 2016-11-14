@@ -191,6 +191,17 @@ def find_user_from_username(username):
 
     return user
 
+def get_uid_from_username(username):
+    user_q = """SELECT uid FROM Account WHERE username = %s"""
+    cursor = g.conn.execute(user_q, (username.lower(),))
+    user = [result for result in cursor]
+    cursor.close()
+
+    if len(user) != 1:
+        raise RuntimeError
+
+    return user[0][0] # why
+
 ###############################
 #
 #    FOLLOWING QUERIES
@@ -238,4 +249,44 @@ def get_memberships_of_uid(uid):
 
     return channels
 
+
+###############################
+#
+#    LIKE QUERIES
+#
+###############################
+
+def does_user_like_post(username, pid):
+    uid = get_uid_from_username(username)
+
+    if not uid:
+        return False
+
+    like_q = """SELECT * FROM Liked
+                WHERE Liked.liker_id = %s
+                AND Liked.post_id = %s"""
+
+    cursor = g.conn.execute(like_q, (uid, pid))
+
+    likes = [result[0] for result in cursor]
+    cursor.close()
+
+    return not not likes
+
+def like_post(username, pid):
+    uid = get_uid_from_username(username)
+
+    insert_q = """INSERT INTO Liked (liker_id, timestamp, post_id)
+                VALUES (%s, current_timestamp, %s)"""
+
+    g.conn.execute(insert_q, (uid, pid))
+
+def unlike(username, pid):
+    uid = get_uid_from_username(username)
+
+    delete_q = """DELETE FROM Liked
+                WHERE Liked.liker_id = %s
+                AND Liked.post_id = %s"""
+
+    g.conn.execute(delete_q, (uid, pid))
 

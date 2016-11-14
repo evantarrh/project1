@@ -7,8 +7,8 @@ from datetime import datetime
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import (
-  Flask, request, render_template, g,
-  redirect, Response, session, abort
+  abort, Flask, request, render_template, g,
+  jsonify, redirect, Response, session,
 )
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
@@ -133,6 +133,41 @@ def view_profile(username):
 
   return render_template("user.html", **context)
 
+@app.route('/api/like', methods=['POST'])
+def like():
+  pid = request.form['pid']
+  username = request.form['user']
+
+  if not username:
+    return jsonify({'liked': False})
+
+  queries.like_post(username, pid)
+
+  return 'goood'
+
+@app.route('/api/unlike', methods=['POST'])
+def unlike():
+  pid = request.form['pid']
+  username = request.form['user']
+
+  if not username:
+    return jsonify({'liked': True})
+
+  queries.unlike(username, pid)
+
+  return 'ok'
+
+@app.route('/api/like_query', methods=['POST'])
+def like_query():
+  pid = request.form['pid']
+  username = request.form['user']
+
+  if not username:
+    return jsonify({'liked': False})
+
+  data = {'liked' : queries.does_user_like_post(username, pid)}
+  return jsonify(data)
+  
 @app.route('/logout')
 def logout():
   # remove the username from the session if it's there
