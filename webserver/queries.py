@@ -159,20 +159,24 @@ def get_password_for_user(username):
     return results[0]
 
 def username_exists_in_db(username):
-    username_q = "SELECT Count(*) FROM Account WHERE username = %s"
-    cursor = g.conn.execute(username_q, (username,))
-    username_count = [result[0] for result in cursor]
+    user_q = "SELECT * FROM Account WHERE username = %s"
+    cursor = g.conn.execute(user_q, (username.lower(),))
+    user = [result[0] for result in cursor]
+
     cursor.close()
 
-    username_count = username_count[0]
-
-    return not username_count
+    return (len(user) > 0)
 
 def insert_user(username, email, password_hash):
+    reserved = ["login", "signup", "api", "messages", "logout"]
+
+    if username_exists_in_db(username) or username.lower() in reserved:
+        return
+
     insert_q = """INSERT INTO
                 Account (time_created, username, email, password)
                 VALUES (current_timestamp, %s, %s, %s)"""
-    g.conn.execute(insert_q, (username, email, password_hash))
+    g.conn.execute(insert_q, (username.lower(), email, password_hash))
 
 def find_user_from_username(username):
     user_q = """SELECT * FROM Account WHERE username = %s"""

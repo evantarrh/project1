@@ -1,3 +1,8 @@
 <div class="upper-left">
 	<span class="link-wrapper"><a href="/" class="inline-link">home</a></span>
+
+	{% if 'username' in session %}
+		<span class="link-wrapper logged-in"><a href="/new" class="inline-link">new post</a></span>
+	{% endif %}
+	
 </div>

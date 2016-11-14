@@ -1,7 +1,8 @@
 #!/usr/bin/env python2.7
 
-import os
 import bcrypt
+import os
+import re
 import config, queries
 from datetime import datetime
 from sqlalchemy import *
@@ -104,6 +105,11 @@ def signup():
     error_text = "Your password must be at least 6 characters long"
     return render_template("signup.html", error_text=error_text)
 
+  if len(username) < 3 or not re.match('^[a-z0-9]+$', username):
+    error_text = """Your username must be at least 3 characters long
+                and should only contain lowercase letters and numbers"""
+    return render_template("signup.html", error_text=error_text)
+
   if queries.username_exists_in_db(username):
     error_text = "That username is taken"
     return render_template("signup.html", error_text=error_text)    
@@ -168,8 +174,13 @@ def like_query():
   data = {'liked' : queries.does_user_like_post(username, pid)}
   return jsonify(data)
   
-@app.route('/<username>/messages', methods=['GET'])
-def view_messages(username):
+@app.route('/messages', methods=['GET'])
+def view_messages():
+  username = session.get('username')
+
+  if not username:
+    return render_template("messages.html")
+
   messages=None
   senders=None
   timestamp=None

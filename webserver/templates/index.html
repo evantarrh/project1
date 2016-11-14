@@ -4,6 +4,7 @@
 
 {% block body %}
 
+  {% include 'home_link.html' %}
   {% include 'account_helper.html' %}
 
   <div class="hero">
@@ -22,14 +23,16 @@
       {% endfor %}
     </div>
   {% else %}
-    <div>
-      <p>There doesn't seem to be anything here! You should follow some people.</p>
-      <p>Here are some suggestions:</p>
-      <ul>
-        {% for user in suggested_users %}
-          <li><a href="/{{user}}">{{user}}</a></li>
-        {% endfor %}
-      </ul>
+    <div class="content">
+      <div class="content-message">
+        <p class="black">There doesn't seem to be anything here! You should follow some people.</p>
+        <p class="black">Here are some suggestions:</p>
+        <ul>
+          {% for user in suggested_users %}
+            <li><span class="link-wrapper"><a href="/{{user}}" class="inline-link">&commat;{{user}}</a></span></li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
   {% endif %}
 

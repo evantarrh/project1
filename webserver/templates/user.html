@@ -8,15 +8,14 @@
 
 	<div class="hero">
 		<h1 class="title"><a href="/{{user.username}}">&commat;{{user.username}}</a></h1>
-		<h3 class="subtitle">{{user.bio}}</h3>
+		{% if user.bio %}
+			<h3 class="subtitle">{{user.bio}}</h3>
+		{% endif %}
 	</div>
 
 	<div class="content">
 	  <div class="content-left">
 	  	<div class="content-inner">
-	  		<div>
-				<h2><a href="/{{user.username}}/messages">messages</a></h2>
-			</div>
 			<h2>followers</h2>
 			
 			<div class="list-wrapper">
