@@ -188,7 +188,7 @@ h4 {
     margin: 0;
     padding: 0;
     padding-bottom: 2.5rem; }
-  .post .date, .post .user, .post .likes .post .reply {
+  .post .date, .post .user, .post .likes {
     bottom: 1.25rem;
     color: #99a;
     font-size: 0.9375rem;
@@ -198,9 +198,6 @@ h4 {
   .post .date {
     left: 2rem; }
   .post .user {
-    left: 50%;
-    transform: translateX(-50%); }
-  .post .reply {
     left: 50%;
     transform: translateX(-50%); }
   .post .likes {

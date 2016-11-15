@@ -491,6 +491,15 @@ def get_num_likes_for_uid(uid):
 
     return num_rows
 
+def get_likes_for_post(pid):
+    post_q="""SELECT Liked.liker_id FROM Liked WHERE Liked.post_id=%s"""
+    cursor=g.conn.execute(post_q, (pid))
+    likes=[]
+    for result in cursor:
+        likes.append(find_username_from_user(result[0]))
+    cursor.close()
+    return likes
+
 
 ###############################
 #
@@ -559,16 +568,31 @@ def add_post(replyto, username, content):
     if replyto is None:
         user_q="""INSERT INTO Posted (uid, time_created, content)
                 VALUES (%s, current_timestamp, %s)"""
-        cursor=g.conn.execute(user_q, (username, content))
+        cursor=g.conn.execute(user_q, (poster_id, content))
     else:
         user_q="""INSERT INTO Posted (replytoid, uid, time_created, content)
                 VALUES (%s, %s, current_timestamp, %s)"""
-        cursor=g.conn.execute(user_q, (replyto, username, content))
+        cursor=g.conn.execute(user_q, (replyto, poster_id, content))
     
     pid_q="""SELECT MAX(pid) FROM Posted"""
+    cursor=g.conn.execute(pid_q)
     pid=[result[0] for result in cursor]
     cursor.close()
     return pid
+
+def get_post(pid):
+    user_q="""SELECT Posted.* FROM Posted WHERE Posted.pid=%s"""
+    cursor=g.conn.execute(user_q, (pid))
+    for result in cursor:
+        posts = {
+                'pid': result[0],
+                'replyto': result[1],
+                'uid': result[2],
+                'date': datetime.strftime(result[3], "%b %d"),
+                'content': result[4]
+              }
+    cursor.close()
+    return posts
 
 
 ##############################

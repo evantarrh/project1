@@ -9,7 +9,7 @@ from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import (
   abort, Flask, request, render_template, g,
-  jsonify, redirect, Response, session,
+  jsonify, redirect, Response, session, url_for
 )
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
@@ -308,7 +308,19 @@ def add_message():
   
   return redirect('/messages')
 
-@app.route('/new')
+@app.route('/post/<pid>', methods=['GET', 'POST'])
+def post(pid):
+  posts=queries.get_post(pid)
+  username=str((queries.find_username_from_user(posts['uid']))[0])
+  likes=queries.get_likes_count_for_post(pid)
+  likers=queries.get_likes_for_post(pid)
+  for i in range(0, len(likers)):
+    likers[i]=str(likers[i][0])
+  print likers
+  return render_template("posts.html", pid=posts['pid'], likes=likes, username=username, content=posts['content'], time=posts['date'], replyto=posts['replyto'])
+
+  
+@app.route('/new', methods=['GET', 'POST'])
 def add_post():
   username=session.get('username')
   if request.method == 'GET':
@@ -316,15 +328,11 @@ def add_post():
   
   if username is None:
     return render_template("newpost.html", username=None)
-  
+  username=session.get('username')
   content=request.form['content']
-  try:
-    timestamp=queries.add_post(None, username, content)
-    
-  except Exception as e:
-    abort(404)
-  
-  return render_template("posts.html", replyto=None, username=username, content=content)
+  pid=queries.add_post(None, username, content)
+  pid=int((str(pid))[1] + (str(pid))[2])
+  return redirect(url_for('post', pid=pid)) 
 
 @app.route('/<username>/reply', methods=['GET', 'POST'])
 def handle_replies(username):
@@ -335,18 +343,12 @@ def handle_replies(username):
   if username is None:
     return render_template("newpost.html", username=None)
   
+  username=session.get('username')
   content=request.form['content']
-  try:
-    pid=queries.add_post(replyto, username, content)
-    
-  except Exception as e:
-    abort(404)
-  
-  return redirect('/<username>/<pid>', replyto=replyto, username=username, content=content)
 
-@app.route('/<username>/<pid>')
-def render_post(replyto, username, content):
-  return render_template("posts.html", replyto=replyto, username=username, content=content)
+
+  return redirect('/post')
+
 
 @app.route('/logout')
 def logout():
