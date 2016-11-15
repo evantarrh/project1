@@ -158,7 +158,13 @@ def get_user_from_post(pid):
     cursor=g.conn.execute(user_q, (pid))
     reply=[result[0] for result in cursor]
     finalVal=str((find_username_from_user(reply[0]))[0])
+    cursor.close()
     return finalVal
+
+def delete_post(pid):
+    delete_q="""DELETE FROM Posted WHERE Posted.pid=%s"""
+    cursor=g.conn.execute(delete_q, (pid))
+    cursor.close()
 
 ###############################
 #
@@ -605,6 +611,7 @@ def get_post(pid):
               }
     cursor.close()
     return posts
+
 
 
 ##############################

@@ -294,6 +294,21 @@ def view_messages():
     timestamp=timestamp, counter=counter, sentmessages=sentmessages, recipients=recipients, senttimestamps=senttimestamps, 
     sentcounter=sentcounter)
 
+@app.route('/delete/<pid>')
+def delete_post(pid):
+  username=session.get('username')
+  if not username:
+    return render_template("deletepost.html", pid=None)
+  user=queries.get_user_from_post(pid)
+  uid=queries.get_uid_from_username(username)
+  useruid=queries.get_uid_from_username(user)
+  #for some reason I was having trouble doing strcmp with is, so I just resorted to this stupid method
+  if uid == useruid:
+    queries.delete_post(pid)
+    return render_template("deletepost.html", pid=pid)
+  
+  return render_template("deletepost.html", pid=None)
+
 @app.route('/new_message', methods=['GET', 'POST'])
 def add_message():
   username=session.get('username')

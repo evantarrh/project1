@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}microblog | login{% endblock %}
+
+{% block body %}
+  {% if 'username' not in session %}
+    <p>you need to <span class="link-wrapper"><a class="inline-link" href="/signup">sign up</a></span> first</p>
+  {% elif username is none %}
+      <p>no such person exists</p>
+  {% else %}
+    {% if pid is not none %}
+      <p>Deleted! Go <span class="link-wrapper"><a class="inline-link" href="/{{username}}">home</a></span></p>
+    {% else %}
+      <p>You do not own this post!</p>
+    {% endif %}
+  {% endif %}
+{% endblock %}
