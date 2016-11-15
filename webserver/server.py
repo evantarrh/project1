@@ -60,7 +60,8 @@ def index():
 
   else:
     posts = queries.get_all_recent_posts()
-    
+  
+
   context = dict(posts=posts,
                  suggested_users=suggested_users,
                  notification_count=notification_count)
@@ -311,15 +312,17 @@ def add_message():
 @app.route('/post/<pid>', methods=['GET', 'POST'])
 def post(pid):
   posts=queries.get_post(pid)
+  replyto=posts['replyto']
+  replytouser=None
   username=str((queries.find_username_from_user(posts['uid']))[0])
+  if replyto is not None:
+    replytouser=queries.get_user_from_post(replyto)
+  print replyto
   likes=queries.get_likes_count_for_post(pid)
   likers=queries.get_likes_for_post(pid)
   for i in range(0, len(likers)):
     likers[i]=str(likers[i][0])
-    #likers[i]=(str(likers[i][0]))[]
-
-  return render_template("posts.html", likers=likers, pid=posts['pid'], likes=likes, username=username, content=posts['content'], time=posts['date'], replyto=posts['replyto'])
-
+  return render_template("posts.html", replytouser=replytouser, likers=likers, pid=posts['pid'], likes=likes, username=username, content=posts['content'], time=posts['date'], replyto=replyto)
   
 @app.route('/new', methods=['GET', 'POST'])
 def add_post():
@@ -335,20 +338,21 @@ def add_post():
   pid=int((str(pid))[1] + (str(pid))[2])
   return redirect(url_for('post', pid=pid)) 
 
-@app.route('/<username>/reply', methods=['GET', 'POST'])
-def handle_replies(username):
-  username=session.get('username')
+@app.route('/reply/<pid>', methods=['GET', 'POST'])
+def handle_replies(pid):
+  current_user=session.get('username')
   if request.method == 'GET':
-    return render_template("newpost.html", username=username)
+    return render_template("newpost.html", username=current_user)
   
-  if username is None:
+  if current_user is None:
     return render_template("newpost.html", username=None)
   
-  username=session.get('username')
   content=request.form['content']
-
-
-  return redirect('/post')
+  print pid
+  print "HI"
+  new_pid=queries.add_post(pid, current_user, content)
+  final_pid=int((str(new_pid))[1] + (str(new_pid))[2])
+  return redirect(url_for('post', pid=final_pid)) 
 
 
 @app.route('/logout')
