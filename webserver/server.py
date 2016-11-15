@@ -61,6 +61,8 @@ def index():
   else:
     posts = queries.get_all_recent_posts()
   
+  for post in posts:
+    post['replytouser']=queries.get_user_from_post(post['replyto'])
 
   context = dict(posts=posts,
                  suggested_users=suggested_users,
@@ -146,6 +148,9 @@ def view_profile(username):
     'followers': queries.get_followers_of_uid(user['uid']),
     'channels': queries.get_memberships_of_uid(user['uid'])
   }
+  for post in context['posts']:
+    post['replytouser']=queries.get_user_from_post(post['replyto'])
+
   return render_template("user.html", **context)
 
 @app.route('/channel/<channel_name>')
@@ -317,7 +322,7 @@ def post(pid):
   username=str((queries.find_username_from_user(posts['uid']))[0])
   if replyto is not None:
     replytouser=queries.get_user_from_post(replyto)
-  print replyto
+
   likes=queries.get_likes_count_for_post(pid)
   likers=queries.get_likes_for_post(pid)
   for i in range(0, len(likers)):
@@ -331,7 +336,7 @@ def add_post():
     return render_template("newpost.html", username=username)
   
   if username is None:
-    return render_template("newpost.html", username=None)
+    return render_template("newpost.html", username=None, pid=None, reply=False)
   username=session.get('username')
   content=request.form['content']
   pid=queries.add_post(None, username, content)
@@ -342,14 +347,12 @@ def add_post():
 def handle_replies(pid):
   current_user=session.get('username')
   if request.method == 'GET':
-    return render_template("newpost.html", username=current_user)
+    return render_template("newpost.html", username=current_user, pid=pid, reply=True)
   
   if current_user is None:
-    return render_template("newpost.html", username=None)
-  
+    return render_template("newpost.html", username=None, pid=None, reply=False)
+
   content=request.form['content']
-  print pid
-  print "HI"
   new_pid=queries.add_post(pid, current_user, content)
   final_pid=int((str(new_pid))[1] + (str(new_pid))[2])
   return redirect(url_for('post', pid=final_pid)) 

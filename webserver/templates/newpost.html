@@ -8,9 +8,16 @@
   {% elif username is none %}
       <p>no such person exists</p>
   {% else %}
-    <form method="POST" action="/new">
-      <input type='text' name='content' placeholder='Enter post here'</input>
-      <input type='submit' name='submit'></input>
-    </form>
+    {% if reply %}
+      <form method="POST" action="/reply/{{pid}}">
+        <input type='text' name='content' placeholder='Enter post here'</input>
+        <input type='submit' name='submit'></input>
+      </form>
+    {% else %}
+      <form method="POST" action="/new">
+        <input type='text' name='content' placeholder='Enter post here'</input>
+        <input type='submit' name='submit'></input>
+      </form>
+    {% endif %}
   {% endif %}
 {% endblock %}
