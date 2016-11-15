@@ -240,7 +240,9 @@ def get_uid_from_username(username):
 def find_username_from_user(uid):
     user_q="""SELECT Account.username FROM Account WHERE Account.uid=%s"""
     cursor=g.conn.execute(user_q, (uid))
-    return [result[0] for result in cursor]
+    val=[result[0] for result in cursor]
+    return val
+
 
 ###############################
 #
@@ -497,6 +499,7 @@ def get_likes_for_post(pid):
     likes=[]
     for result in cursor:
         likes.append(find_username_from_user(result[0]))
+
     cursor.close()
     return likes
 

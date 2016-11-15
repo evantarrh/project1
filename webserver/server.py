@@ -316,8 +316,9 @@ def post(pid):
   likers=queries.get_likes_for_post(pid)
   for i in range(0, len(likers)):
     likers[i]=str(likers[i][0])
-  print likers
-  return render_template("posts.html", pid=posts['pid'], likes=likes, username=username, content=posts['content'], time=posts['date'], replyto=posts['replyto'])
+    #likers[i]=(str(likers[i][0]))[]
+
+  return render_template("posts.html", likers=likers, pid=posts['pid'], likes=likes, username=username, content=posts['content'], time=posts['date'], replyto=posts['replyto'])
 
   
 @app.route('/new', methods=['GET', 'POST'])

@@ -20,12 +20,22 @@
       </div>
     </div>
   </div>
-  {%if likes > 0%}
+  {% if likes > 0 %}
     <div class="content">
       <div class="feed">
         <div class="post">
             <p class="post-content">Who likes this post?</p>
-            <p class="post-content">{{likers}} like this post</p>
+            {% if likes > 1 %}
+              {% for liker in likers %}
+                {{liker}}
+                {% if not loop.last %}
+                  ,
+                {% endif %}
+              {% endfor %}
+                all like the post!
+            {% else %}
+              {{likers[0]}}
+            {% endif %}
         </div>
       </div>
     </div>
