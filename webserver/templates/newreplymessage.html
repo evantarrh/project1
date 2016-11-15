@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}microblog | login{% endblock %}
+
+{% block body %}
+  {% if 'username' not in session %}
+    <p>you need to <span class="link-wrapper"><a class="inline-link" href="/signup">sign up</a></span> first</p>
+  {% else %}
+    <form method="POST" action="/{{username}}/new_message">
+      <input type= 'text' name='content' placeholder='Enter message here'></input>
+      <input type='submit' name='submit'></input>
+    </form>
+  {% endif %}
+{% endblock %}

@@ -4,7 +4,7 @@
 
 {% block body %}
   {% if 'username' not in session %}
-    <p>you need to <span class="link-wrapper"><a class="inline-link" href="/signup">sign up</a></span> first</p>
+    <p>you need to <span class="link-wrapper"><a class="inline-link" href="/signup">sign up</a></span> or <span class="link-wrapper login"><a class="inline-link" href="/login">log in</a></span> first</p>
   {% elif username is none %}
       <p>no such person exists</p>
   {% else %}

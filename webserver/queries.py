@@ -576,7 +576,7 @@ def add_message(username, recipient, content):
         return None
     user_q="""INSERT INTO sent_message (sender_id, recipient_id, sent_time, content)
                 VALUES (%s, %s, current_timestamp, %s)"""
-  
+    
     cursor=g.conn.execute(user_q, (sender_id, recipient_id, content))
     cursor.close()
     return recipient_id

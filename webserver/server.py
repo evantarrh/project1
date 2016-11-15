@@ -272,7 +272,6 @@ def join():
 
   return 'good'
   
-
 @app.route('/messages', methods=['GET'])
 def view_messages():
   username = session.get('username')
@@ -309,6 +308,21 @@ def delete_post(pid):
   
   return render_template("deletepost.html", pid=None)
 
+@app.route('/<username>/new_message', methods=['GET', 'POST'])
+def reply_message(username):
+  current_user=session['username']
+  if request.method == 'GET':
+    return render_template("newreplymessage.html", username=username)
+
+  content=request.form['content']
+  try:
+    value=queries.add_message(current_user, username, content)
+
+  except Exception as e:
+    abort(404)
+
+  queries.message_notification(current_user, username)
+  return redirect('/messages')
 @app.route('/new_message', methods=['GET', 'POST'])
 def add_message():
   username=session.get('username')
