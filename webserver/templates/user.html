@@ -17,6 +17,7 @@
 			{% else %}
 				<h4><span class="link-wrapper"><a href="#" class="inline-link follow-link" data-follower="{{session['username']}}" data-followee="{{user.username}}">follow &commat;{{user.username}}?</a></span></h4>
 			{% endif %}
+				<h4><span class = "link-wrapper"><a href="/{{user.username}}/new_message" class="inline-link">message {{user.username}}!</a></span></h4>
 		{% endif %}
 
 	</div>
