@@ -153,6 +153,23 @@ def view_profile(username):
 
   return render_template("user.html", **context)
 
+@app.route('/channel/new', methods=['GET', 'POST'])
+def create_channel():  
+  
+  if request.method='GET':
+    return render_template("newchannel.html")
+  
+  
+  admin_id = queries.get_uid_from_username(session['username'])
+
+  name=request.form['name']
+  description=request.form['description']
+  try:
+    queries.create_channel(name, admin_id, description)
+    return redirect ('/channel/{}'.format(name.lower()))
+  except Exception as e:
+    abort(404)
+
 @app.route('/channel/<channel_name>')
 def view_channel(channel_name):  
   try:
