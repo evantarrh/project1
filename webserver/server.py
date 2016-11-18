@@ -297,7 +297,7 @@ def delete_channel():
   if not channel:
     return abort(500)
 
-  queries.delete_channel(member, channel)
+  queries.delete_channel(channel)
 
   return 'good'
   
