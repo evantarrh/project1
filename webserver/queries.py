@@ -458,6 +458,11 @@ def get_channel_admin(channel_name):
 
     return admin_name
 
+def delete_channel(channel_name):
+    q = "DELETE FROM Channel WHERE lower(Channel.name) = %s"
+    g.conn.execute(q, (channel_name.lower(),))
+
+
 ###############################
 #
 #    LIKE QUERIES

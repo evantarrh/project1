@@ -57,6 +57,18 @@
 	    &:hover {
 	    	background-color: lighten($blue, 7.5%);
 	    }
+
+	    &.delete-post {
+	    	background-color: $red;
+	    	border-bottom: 2px solid lighten($red, 7.5%);
+	    	margin-top: 3rem;
+	    	position: absolute;
+	    	right: 0;
+
+	    	&:hover {
+	    		background-color: lighten($red, 7.5%);
+	    	}
+	    }
 	}
 	.new-message {
 		background-color: $blue;
@@ -143,6 +155,21 @@
     	border: 1px solid $blue;
     }
 
+    .replyto {
+    	font-size: 0.875rem;
+    	font-weight: 300;
+    	margin: 0;
+    	margin-bottom: 1rem;
+    }
+
+    .reply-link {
+    	font-size: 0.875rem;
+    	font-weight: 300;
+    	position: absolute;
+    	right: 1.5rem;
+    	top: 1.5rem;
+    }
+
 	.post-content {
 	    font-size: 1.0625rem;
 	    font-weight: 300;
@@ -151,6 +178,17 @@
 	    margin: 0;
 	    padding: 0;
 	    padding-bottom: 2.5rem;
+
+	    .post-link {
+	    	color: $dark-gray;
+    		text-decoration: none;
+    		transition: 0.2s ease all;
+
+	    	&:hover {
+	    		color: $medium-gray;
+	    		text-decoration: none;
+	    	}
+	    }
 	}
 
 	.date, .user, .likes {
@@ -181,6 +219,10 @@
 			right: -2rem;
 		}
 	}
+}
+
+.likers {
+	text-align: center;
 }
 
 .notif-button {

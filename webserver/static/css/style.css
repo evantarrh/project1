@@ -122,6 +122,14 @@ h4 {
     transition: 0.2s ease all; }
     .upper-right .signup:hover {
       background-color: #438be2; }
+    .upper-right .signup.delete-post {
+      background-color: #f78;
+      border-bottom: 2px solid #ff9da9;
+      margin-top: 3rem;
+      position: absolute;
+      right: 0; }
+      .upper-right .signup.delete-post:hover {
+        background-color: #ff9da9; }
   .upper-right .new-message {
     background-color: #27d;
     border-bottom: 2px solid #438be2;
@@ -180,6 +188,17 @@ h4 {
   max-width: 540px; }
   .post.new {
     border: 1px solid #27d; }
+  .post .replyto {
+    font-size: 0.875rem;
+    font-weight: 300;
+    margin: 0;
+    margin-bottom: 1rem; }
+  .post .reply-link {
+    font-size: 0.875rem;
+    font-weight: 300;
+    position: absolute;
+    right: 1.5rem;
+    top: 1.5rem; }
   .post .post-content {
     font-size: 1.0625rem;
     font-weight: 300;
@@ -188,6 +207,13 @@ h4 {
     margin: 0;
     padding: 0;
     padding-bottom: 2.5rem; }
+    .post .post-content .post-link {
+      color: #556;
+      text-decoration: none;
+      transition: 0.2s ease all; }
+      .post .post-content .post-link:hover {
+        color: #99a;
+        text-decoration: none; }
   .post .date, .post .user, .post .likes {
     bottom: 1.25rem;
     color: #99a;
@@ -207,6 +233,9 @@ h4 {
       fill: #27d;
       position: absolute;
       right: -2rem; }
+
+.likers {
+  text-align: center; }
 
 .notif-button {
   background-color: #f78;
