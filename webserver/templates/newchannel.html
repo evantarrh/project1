@@ -8,9 +8,9 @@
   {% elif username is none %}
       <p>no such person exists</p>
   {% else %}
-    <form method="POST" action="/new_message">
+    <form method="POST" action="/channel/new">
       <input type= 'text' name='name' placeholder='Enter Channel name'></input>
-      <input type= 'text' name='name' placeholder='Enter Channel description'></input>
+      <input type= 'text' name='description' placeholder='Enter Channel description'></input>
       <input type='submit' name='submit'></input>
     </form>
   {% endif %}

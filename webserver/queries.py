@@ -327,6 +327,10 @@ def follow(u1, u2):
 #
 ###############################
 
+def create_channel(name, admin_id, description):
+    channel_q="""INSERT INTO Channel (name, admin_id, description) VALUES (%s, %s, %s)"""
+    g.conn.execute(channel_q, (name, admin_id, description))
+
 def get_memberships_of_uid(uid):
     channel_q = """SELECT Channel.name FROM Channel, Membership
            WHERE Membership.gid = Channel.gid

@@ -156,16 +156,18 @@ def view_profile(username):
 @app.route('/channel/new', methods=['GET', 'POST'])
 def create_channel():  
   
-  if request.method='GET':
+  if request.method=='GET':
     return render_template("newchannel.html")
   
   
   admin_id = queries.get_uid_from_username(session['username'])
-
   name=request.form['name']
   description=request.form['description']
+
+
   try:
     queries.create_channel(name, admin_id, description)
+    queries.join_channel(session['username'], name)
     return redirect ('/channel/{}'.format(name.lower()))
   except Exception as e:
     abort(404)
