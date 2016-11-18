@@ -271,6 +271,18 @@ def join():
   queries.join_channel(member, channel)
 
   return 'good'
+
+
+@app.route('/api/delete_channel', methods=['POST'])
+def delete_channel():
+  channel = request.form['channel']
+
+  if not channel:
+    return abort(500)
+
+  queries.delete_channel(member, channel)
+
+  return 'good'
   
 @app.route('/messages', methods=['GET'])
 def view_messages():

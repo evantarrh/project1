@@ -20,4 +20,24 @@ $(document).ready(function() {
         });
 	});
 
+	$('.delete-channel-link').click(function(e) {
+		var el = $(e.target);
+		var data = {
+			channel: $(el).data('channel')
+		}
+
+		$.ajax({
+			type: "POST",
+			url: "/api/delete_channel",
+			data: data,
+			success: function(res) {
+				$(el).html('this channel is no more');
+			},
+			error: function(er) {
+				$(el).html('something broke lol');
+				console.error(er);
+			}
+        });
+	});
+
 });

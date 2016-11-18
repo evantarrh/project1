@@ -17,6 +17,9 @@
 			{% else %}
 				<h4><span class="link-wrapper"><a href="#" class="inline-link follow-link" data-member="{{session['username']}}" data-channel="{{channel_name}}">join #{{channel_name}}?</a></span></h4>
 			{% endif %}
+			{% if admin = session['username'] %}
+				<h4><span class="link-wrapper"><a href="#" class="inline-link delete-channel-link" data-channel="{{channel_name}}">delete #{{channel_name}}?</a></span></h4>
+			{% endif %}
 		{% endif %}
 
 	</div>
